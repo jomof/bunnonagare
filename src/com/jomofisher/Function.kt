@@ -17,7 +17,11 @@ class Function(untrimmed: String, val parms: List<Function>) {
     }
 }
 
-private class State(val line: String, var pos: Int = 0, var inQuote: Boolean = false)
+private class State(
+        val line: String,
+        var pos: Int = 0,
+        var inQuote: Boolean = false,
+        var parenDepth: Int = 0)
 
 fun parse(file: File): List<Function> {
     return file.readLines().map { parse(it) }.toList()
@@ -50,9 +54,16 @@ private fun parseFunction(state: State): Function {
                 }
                 '(' -> {
                     state.pos++
+                    state.parenDepth++
                     return Function(name, parseList(state))
                 }
-                ')' -> return Function(name, listOf())
+                ')' -> {
+                    state.parenDepth--
+                    if (state.parenDepth < 0) {
+                        throw RuntimeException("Unmatched right paren: ${state.line}")
+                    }
+                    return Function(name, listOf())
+                }
                 ',' -> return Function(name, listOf())
                 else -> {
                     name += c

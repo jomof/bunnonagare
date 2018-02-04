@@ -2,7 +2,6 @@ package com.jomofisher
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
-import kotlin.test.fail
 
 internal class IsKtTest {
 
@@ -61,15 +60,5 @@ internal class IsKtTest {
                 { createTestIsMap("is(something)", "is(something)") })
     }
 
-    private fun assertFailsWith(message: String, function: () -> Unit) {
-        try {
-            function()
-        } catch (e: RuntimeException) {
-            assertThat(e).hasMessageThat().isEqualTo(message)
-            return
-        }
-        fail("Expected failure")
 
-
-    }
 }

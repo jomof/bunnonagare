@@ -13,6 +13,13 @@ internal class FunctionKtTest {
     }
 
     @Test
+    fun rightParenOnly() {
+        assertFailsWith("Unmatched right paren: )", {
+            parse(")")
+        })
+    }
+
+    @Test
     fun literal() {
         val result = parse("literal")
         assertThat(result.name).isEqualTo("literal")
