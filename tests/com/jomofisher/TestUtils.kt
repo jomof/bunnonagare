@@ -12,3 +12,14 @@ fun assertFailsWith(message: String, function: () -> Unit) {
     }
     fail("Expected failure")
 }
+
+fun createTestIsMap(vararg lines: String): Map<String, String> {
+    val functions = lines.map { parse(it) }.toList()
+    return createIsMap(functions)
+}
+
+fun createTestMakesMap(vararg lines: String): Map<String, List<List<String>>> {
+    val functions = lines.map { parse(it) }.toList()
+    val isMap = createIsMap(functions)
+    return createMakesMap(functions, isMap)
+}

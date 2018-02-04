@@ -5,10 +5,6 @@ import org.junit.Test
 
 internal class IsKtTest {
 
-    private fun createTestIsMap(vararg lines: String): Map<String, String> {
-        val functions = lines.map { parse(it) }.toList()
-        return createIsMap(functions)
-    }
 
     @Test
     fun singleIs() {
@@ -22,6 +18,17 @@ internal class IsKtTest {
         assertFailsWith(
                 "something(other-thing) isn't literal",
                 { createTestIsMap("is(something(other-thing))") })
+    }
+
+    @Test
+    fun selfReferencing() {
+        assertFailsWith(
+                "is-function a is already assigned",
+                {
+                    createTestIsMap(
+                            "is(a)",
+                            "is(a, a)")
+                })
     }
 
     @Test
@@ -59,6 +66,4 @@ internal class IsKtTest {
                 "is-function something is already assigned",
                 { createTestIsMap("is(something)", "is(something)") })
     }
-
-
 }
