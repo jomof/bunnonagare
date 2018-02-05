@@ -82,6 +82,6 @@ internal class FunctionKtTest {
         val result = parse("function( \"one , two\")")
         assertThat(result.name).isEqualTo("function")
         assertThat(result.parms).hasSize(1)
-        assertThat(result.parms[0].name).isEqualTo("one , two")
+        assertThat(result.parms[0].name).isEqualTo("\"one , two\"")
     }
 }
