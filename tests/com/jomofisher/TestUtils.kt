@@ -13,6 +13,16 @@ fun assertFailsWith(message: String, function: () -> Unit) {
     fail("Expected failure")
 }
 
+fun assertFailsWithContains(message: String, function: () -> Unit) {
+    try {
+        function()
+    } catch (e: RuntimeException) {
+        Truth.assertThat(e).hasMessageThat().contains(message)
+        return
+    }
+    fail("Expected failure")
+}
+
 fun createFunctions(vararg lines: String): List<Function> {
     return lines.map { parse(it) }.toList()
 }

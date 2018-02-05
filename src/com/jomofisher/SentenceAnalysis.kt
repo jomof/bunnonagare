@@ -62,7 +62,10 @@ class SentenceAnalysis(functions: List<Function>) {
         return null
     }
 
-    private fun tryUnify(make: List<String>, literalSentence: Function): List<Unification>? {
+    private fun tryUnify(
+            make: List<String>,
+            literalSentence: Function,
+            report: (String) -> Unit): List<Unification>? {
         if (make.size == literalSentence.parms.size) {
             val result = mutableListOf<Unification>()
             for ((makeElement, literalSentenceElement) in make zip literalSentence.parms) {
@@ -80,12 +83,14 @@ class SentenceAnalysis(functions: List<Function>) {
                 val unifiedToMake = tryUnifyMake(
                         makeElement,
                         literalSentenceElement,
+                        report,
                         ignoreFirstParm)
                 if (unifiedToMake != null) {
                     result += UnificationList(unifiedToMake)
                     continue
                 }
-                result += FailedUnification("could not unify $makeElement with $literalSentenceElement")
+                report("could not unify $literalSentenceElement with $makeElement")
+                return null
             }
             return result
         }
@@ -116,6 +121,7 @@ class SentenceAnalysis(functions: List<Function>) {
     private fun tryUnifyMake(
             makeKey: String,
             sentence: Function,
+            report: (String) -> Unit,
             ignoreFirstParm: Boolean = false): List<Unification>? {
         val makes = getProductiveMakes(makeKey)
         val result = mutableListOf<List<Unification>>()
@@ -124,48 +130,28 @@ class SentenceAnalysis(functions: List<Function>) {
             if (ignoreFirstParm) {
                 makeParms = makeParms.drop(1)
             }
-            val unification: List<Unification>? = tryUnify(makeParms, sentence)
+            val unification: List<Unification>? = tryUnify(makeParms, sentence, report)
             if (unification != null) {
                 result.add(unification)
             }
         }
-        val (failures, successes) = result.partition { hasAnyFailures(it) }
-        if (successes.size == 1) {
-            return successes[0]
+        if (result.size == 1) {
+            return result[0]
         }
         if (result.size > 1) {
-            throw RuntimeException("'$sentence' unifies in multiple ways")
-        }
-        if (failures.isNotEmpty()) {
-            return failures[0]
+            report("'$sentence' unifies in multiple ways:")
+            result.map { report("- $it") }
         }
         return null
     }
 
     fun analyzeSentence(sentence: Function): List<Unification> {
         assert(sentence.name == "sentence")
-        val result = tryUnifyMake("sentence", sentence)!!
-        throwIfAnyFailures(result)
-        return result
+        val builder = StringBuilder()
+        return tryUnifyMake(
+                "sentence",
+                sentence,
+                { message -> builder.append("$message\n") })
+                ?: throw RuntimeException("could not unify '$sentence': $builder")
     }
-
-    private fun hasAnyFailures(unifications: List<Unification>): Boolean {
-        for (unification in unifications) {
-            when (unification) {
-                is FailedUnification -> return true
-                is UnificationList -> if (hasAnyFailures(unification.unifications)) return true
-            }
-        }
-        return false
-    }
-
-    private fun throwIfAnyFailures(unifications: List<Unification>) {
-        for (unification in unifications) {
-            when (unification) {
-                is FailedUnification -> throw RuntimeException(unification.message)
-                is UnificationList -> throwIfAnyFailures(unification.unifications)
-            }
-        }
-    }
-
 }

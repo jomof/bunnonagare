@@ -14,8 +14,8 @@ class UnificationList(val unifications: List<Unification>) : Unification() {
     }
 }
 
-class FailedUnification(val message: String) : Unification() {
-    override fun toString(): String {
-        return message
-    }
-}
+//class FailedUnification(val message: String) : Unification() {
+//    override fun toString(): String {
+//        return message
+//    }
+//}

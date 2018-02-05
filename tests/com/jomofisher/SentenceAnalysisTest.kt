@@ -137,8 +137,8 @@ class SentenceAnalysisTest {
                 "makes(negative-present-casual-i-adj, i-adj-stem, \"くない\")",
                 "makes(sentence, english, wa-phrase, adj, \"です\")"
         ))
-        assertFailsWith(
-                "could not unify \"くない\" with くなかった", {
+        assertFailsWithContains(
+                "could not unify (安,くなかった) with adj", {
             analysis.analyzeSentence(
                     parse("sentence(\"The book was not cheap (casual)\", (本, は), (安, くなかった), です)")
             )
@@ -149,7 +149,9 @@ class SentenceAnalysisTest {
     fun againstGrammar() {
         val all = parse(File("C:\\Users\\jomof\\IdeaProjects\\bunnonagare\\grammar.txt"))
         val analysis = SentenceAnalysis(all)
-        val result = analysis.analyzeSentence(parse("sentence(\"The book was not cheap (casual)\", (本, は), (安, くなかった), です)"))
+        val result = analysis.analyzeSentence(parse(
+                "sentence(\"This pen is blue\", ((こ, の, ペン), は), 青い, です)"
+        ))
         assertThat(result).hasSize(4)
     }
 }
