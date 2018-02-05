@@ -49,14 +49,14 @@ internal class IsKtTest {
     fun singleParameterIs() {
         val map = createTestIsMap("is(something)")
         assertThat(map).hasSize(1)
-        assertThat(map).containsEntry("something", "root-of-is")
+        assertThat(map).containsEntry("something", rootOfIs)
     }
 
     @Test
     fun twoParameterIs() {
         val map = createTestIsMap("is(something)", "is(other, something)")
         assertThat(map).hasSize(2)
-        assertThat(map).containsEntry("something", "root-of-is")
+        assertThat(map).containsEntry("something", rootOfIs)
         assertThat(map).containsEntry("other", "something")
     }
 

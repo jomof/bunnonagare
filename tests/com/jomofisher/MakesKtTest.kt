@@ -50,7 +50,7 @@ internal class MakesKtTest {
 
     @Test
     fun functionParameter() {
-        assertFailsWith("expected makes(b,a,a(c)) to have all literal parameters",
+        assertFailsWith("expected makes(b,a,a(c)) to have all literal parameters, but 'a(c)' isn't literal",
                 {
                     createTestMakesMap(
                             "is(a)",

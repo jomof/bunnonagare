@@ -15,5 +15,8 @@ fun mustHaveAtLeastNParameters(function: Function, n: Int) {
 fun mustHaveAllLiteralParameters(function: Function) {
     function.parms
             .filterNot { it.parms.isEmpty() }
-            .forEach { throw RuntimeException("expected $function to have all literal parameters") }
+            .forEach {
+                throw RuntimeException(
+                        "expected $function to have all literal parameters, but '$it' isn't literal")
+            }
 }

@@ -1,6 +1,8 @@
 package com.jomofisher
 
-fun createMakesMap(functions: List<Function>, isMap: Map<String, String>): Map<String, List<List<String>>> {
+fun createMakesMap(
+        functions: List<Function>,
+        isMap: Map<String, String>): Map<String, List<List<String>>> {
     val map = mutableMapOf<String, MutableList<List<String>>>()
     for (function in functions) {
         if (function.name == "makes") {

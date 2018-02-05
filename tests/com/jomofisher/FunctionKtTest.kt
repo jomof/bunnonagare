@@ -13,6 +13,14 @@ internal class FunctionKtTest {
     }
 
     @Test
+    fun simpleSentence() {
+        val result = parse("sentence(\"x\", (それ, は), 椅子, です)")
+        assertThat(result.name).isEqualTo("sentence")
+        assertThat(result.parms).hasSize(4)
+        assertThat(result.parms[1].parms).hasSize(2)
+    }
+
+    @Test
     fun rightParenOnly() {
         assertFailsWith("Unmatched right paren: )", {
             parse(")")
