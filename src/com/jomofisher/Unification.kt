@@ -2,7 +2,7 @@ package com.jomofisher
 
 open class Unification
 
-class SingleUnification(private val type: String, private val value: Function) : Unification() {
+class SingleUnification(private val type: String, private val value: String) : Unification() {
     override fun toString(): String {
         return "$value -> $type"
     }

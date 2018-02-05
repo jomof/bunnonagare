@@ -55,7 +55,6 @@ fun createReverseIsMap(isMap: Map<String, String>): Map<String, Set<String>> {
     return map
 }
 
-
 fun mustNotBeInIsMap(map: MutableMap<String, String>, left: String) {
     if (map.containsKey(left)) {
         throw RuntimeException("is-function $left is already assigned")

@@ -46,6 +46,7 @@ private fun parseFunction(state: State): Function {
         if (state.inQuote) {
             when (c) {
                 '"' -> {
+                    name += c
                     state.inQuote = false
                     state.pos++
                 }
@@ -57,6 +58,7 @@ private fun parseFunction(state: State): Function {
         } else {
             when (c) {
                 '"' -> {
+                    name += c
                     state.inQuote = true
                     state.pos++
                 }

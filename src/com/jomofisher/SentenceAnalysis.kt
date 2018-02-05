@@ -25,26 +25,44 @@ class SentenceAnalysis(functions: List<Function>) {
             if (isMap.containsKey(literalSentenceElement.name)) {
                 if (isType(literalSentenceElement.name, unificationType)) {
                     return SingleUnification(literalSentenceElement.name,
-                            literalSentenceElement)
+                            literalSentenceElement.name)
                 }
             }
         }
         return null
     }
 
+    private fun isStringLiteral(value: String): Boolean {
+        if (value[0] != '\"') {
+            return false
+        }
+        if (value.last() != '\"') {
+            return false
+        }
+        return true
+    }
+
+    private fun getStringLiteral(value: String): String {
+        return value.substring(1, value.length - 1)
+    }
+
     private fun unifyToIsMapImplicit(makeElement: String, literalSentenceElement: Function)
             : SingleUnification? {
         if (literalSentenceElement.parms.isEmpty()) {
             if (!isMap.containsKey(literalSentenceElement.name)) {
-                return SingleUnification(makeElement, literalSentenceElement)
+                if (isStringLiteral(makeElement)) {
+                    if (getStringLiteral(makeElement) == literalSentenceElement.name) {
+                        return SingleUnification(makeElement, literalSentenceElement.name)
+                    }
+                    return null
+                }
+                return SingleUnification(makeElement, literalSentenceElement.name)
             }
         }
         return null
     }
 
-
-    private fun tryUnify(make: List<String>, literalSentence: Function)
-            : List<Unification>? {
+    private fun tryUnify(make: List<String>, literalSentence: Function): List<Unification>? {
         if (make.size == literalSentence.parms.size) {
             val result = mutableListOf<Unification>()
             for ((makeElement, literalSentenceElement) in make zip literalSentence.parms) {
@@ -63,12 +81,9 @@ class SentenceAnalysis(functions: List<Function>) {
                         makeElement,
                         literalSentenceElement,
                         ignoreFirstParm)
-                if (unifiedToMake.isNotEmpty()) {
-                    if (unifiedToMake.size == 1) {
-                        result += UnificationList(unifiedToMake[0])
-                        continue
-                    }
-                    throw RuntimeException("multiple sub-unifications for '$literalSentenceElement'")
+                if (unifiedToMake != null) {
+                    result += UnificationList(unifiedToMake)
+                    continue
                 }
                 result += FailedUnification("could not unify $makeElement with $literalSentenceElement")
             }
@@ -76,6 +91,7 @@ class SentenceAnalysis(functions: List<Function>) {
         }
         return null
     }
+
 
     private fun getChildTypeClosure(type: String): Set<String> {
         val result = mutableSetOf<String>()
@@ -100,7 +116,7 @@ class SentenceAnalysis(functions: List<Function>) {
     private fun tryUnifyMake(
             makeKey: String,
             sentence: Function,
-            ignoreFirstParm: Boolean = false): List<List<Unification>> {
+            ignoreFirstParm: Boolean = false): List<Unification>? {
         val makes = getProductiveMakes(makeKey)
         val result = mutableListOf<List<Unification>>()
         for (make in makes) {
@@ -113,20 +129,34 @@ class SentenceAnalysis(functions: List<Function>) {
                 result.add(unification)
             }
         }
-        return result
-    }
-
-    fun analyzeSentence(sentence: Function): List<Unification> {
-        assert(sentence.name == "sentence")
-        val result = tryUnifyMake("sentence", sentence)
-        if (result.isEmpty()) {
-            throw RuntimeException("could not unify '$sentence'")
+        val (failures, successes) = result.partition { hasAnyFailures(it) }
+        if (successes.size == 1) {
+            return successes[0]
         }
         if (result.size > 1) {
             throw RuntimeException("'$sentence' unifies in multiple ways")
         }
-        throwIfAnyFailures(result[0])
-        return result[0]
+        if (failures.isNotEmpty()) {
+            return failures[0]
+        }
+        return null
+    }
+
+    fun analyzeSentence(sentence: Function): List<Unification> {
+        assert(sentence.name == "sentence")
+        val result = tryUnifyMake("sentence", sentence)!!
+        throwIfAnyFailures(result)
+        return result
+    }
+
+    private fun hasAnyFailures(unifications: List<Unification>): Boolean {
+        for (unification in unifications) {
+            when (unification) {
+                is FailedUnification -> return true
+                is UnificationList -> if (hasAnyFailures(unification.unifications)) return true
+            }
+        }
+        return false
     }
 
     private fun throwIfAnyFailures(unifications: List<Unification>) {
