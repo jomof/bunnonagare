@@ -6,13 +6,14 @@ import org.junit.Test
 internal class MakesKtTest {
     @Test
     fun simplest() {
-        val makesMap = createTestMakesMap(
+        val (makesMap, _) = createTestMakesMap(
                 "is(a)",
                 "is(b)",
                 "makes(b, a, a)")
-        assertThat(makesMap).hasSize(1)
-        assertThat(makesMap["b"]).hasSize(1)
-        assertThat(makesMap["b"]?.get(0)).containsExactly("a", "a")
+        assertThat(makesMap.size).isEqualTo(1)
+        assertThat(makesMap[Type("b")]).hasSize(1)
+        assertThat(makesMap[Type("b")]?.get(0))
+                .containsExactly(Type("a"), Type("a"))
     }
 
     @Test
@@ -28,7 +29,7 @@ internal class MakesKtTest {
 
     @Test
     fun notEnoughParameters1() {
-        assertFailsWith("expected makes(b) to have at least 3 parameters",
+        assertFailsWith("expected makes(b) to have at least 2 parameters",
                 {
                     createTestMakesMap(
                             "is(a)",
@@ -39,7 +40,7 @@ internal class MakesKtTest {
 
     @Test
     fun notEnoughParameters0() {
-        assertFailsWith("expected makes to have at least 3 parameters",
+        assertFailsWith("expected makes to have at least 2 parameters",
                 {
                     createTestMakesMap(
                             "is(a)",

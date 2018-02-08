@@ -2,9 +2,9 @@ package com.jomofisher
 
 open class Unification
 
-class SingleUnification(private val type: String, private val value: String) : Unification() {
+class SingleUnification(private val element: Element, private val value: Type) : Unification() {
     override fun toString(): String {
-        return "$value -> $type"
+        return "$value -> $element"
     }
 }
 
@@ -13,9 +13,3 @@ class UnificationList(val unifications: List<Unification>) : Unification() {
         return "(" + unifications.joinToString(",") + ")"
     }
 }
-
-//class FailedUnification(val message: String) : Unification() {
-//    override fun toString(): String {
-//        return message
-//    }
-//}

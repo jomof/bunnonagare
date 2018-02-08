@@ -27,12 +27,12 @@ fun createFunctions(vararg lines: String): List<Function> {
     return lines.map { parse(it) }.toList()
 }
 
-fun createTestIsMap(vararg lines: String): Map<String, String> {
+fun createTestIsMap(vararg lines: String): Map<Type, Type> {
     val functions = lines.map { parse(it) }.toList()
     return createIsMap(functions)
 }
 
-fun createTestMakesMap(vararg lines: String): Map<String, List<List<String>>> {
+fun createTestMakesMap(vararg lines: String): Pair<Map<Type, List<List<Element>>>, Set<Type>> {
     val functions = lines.map { parse(it) }.toList()
     val isMap = createIsMap(functions)
     return createMakesMap(functions, isMap)

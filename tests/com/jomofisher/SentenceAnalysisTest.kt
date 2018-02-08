@@ -106,9 +106,9 @@ class SentenceAnalysisTest {
         assertThat(sentenceAnalysis).isNotNull()
         assertThat(sentenceAnalysis).hasSize(4)
         assertThat(sentenceAnalysis[0].toString()).isEqualTo("\"The car is not big (casual)\" -> english")
-        assertThat(sentenceAnalysis[1].toString()).isEqualTo("(車 -> noun,は -> \"は\")")
-        assertThat(sentenceAnalysis[2].toString()).isEqualTo("(大き -> i-adj-stem,くない -> \"くない\")")
-        assertThat(sentenceAnalysis[3].toString()).isEqualTo("です -> \"です\"")
+        assertThat(sentenceAnalysis[1].toString()).isEqualTo("(車 -> noun,は -> は)")
+        assertThat(sentenceAnalysis[2].toString()).isEqualTo("(大き -> i-adj-stem,くない -> くない)")
+        assertThat(sentenceAnalysis[3].toString()).isEqualTo("です -> です")
     }
 
     @Test
@@ -150,7 +150,7 @@ class SentenceAnalysisTest {
         val all = parse(File("C:\\Users\\jomof\\IdeaProjects\\bunnonagare\\grammar.txt"))
         val analysis = SentenceAnalysis(all)
         val result = analysis.analyzeSentence(parse(
-                "sentence(\"This pen is blue\", ((こ, の, ペン), は), 青い, です)"
+                "sentence(\"I bought them last week at the Ginza ticket agency\",(先週,(銀座,の,プレイガイド),で),(買い,ました))"
         ))
         assertThat(result).hasSize(4)
     }
