@@ -12,28 +12,3 @@ fun assertFailsWith(message: String, function: () -> Unit) {
     }
     fail("Expected failure")
 }
-
-fun assertFailsWithContains(message: String, function: () -> Unit) {
-    try {
-        function()
-    } catch (e: RuntimeException) {
-        Truth.assertThat(e).hasMessageThat().contains(message)
-        return
-    }
-    fail("Expected failure")
-}
-
-fun createFunctions(vararg lines: String): List<Function> {
-    return lines.map { parse(it) }.toList()
-}
-
-fun createTestIsMap(vararg lines: String): Map<Type, Type> {
-    val functions = lines.map { parse(it) }.toList()
-    return createIsMap(functions)
-}
-
-fun createTestMakesMap(vararg lines: String): Pair<Map<Type, List<List<Element>>>, Set<Type>> {
-    val functions = lines.map { parse(it) }.toList()
-    val isMap = createIsMap(functions)
-    return createMakesMap(functions, isMap)
-}

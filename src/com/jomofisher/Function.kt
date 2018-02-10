@@ -2,8 +2,22 @@ package com.jomofisher
 
 import java.io.File
 
-class Function(untrimmed: String, val parms: List<Function> = listOf()) {
-    val name = untrimmed.trim()
+open class Node
+
+class Label(val label: String) : Node() {
+    override fun toString(): String {
+        return label
+    }
+
+    override fun hashCode(): Int {
+        return label.hashCode()
+    }
+}
+
+class Function(val name: String, val parms: List<Node>) : Node() {
+    init {
+        if (parms.isEmpty()) throw RuntimeException("should be label")
+    }
 
     override fun toString(): String {
         val builder = StringBuilder()
@@ -31,15 +45,19 @@ private class State(
         var inQuote: Boolean = false,
         var parenDepth: Int = 0)
 
-fun parse(file: File): List<Function> {
+fun parse(file: File): List<Node> {
     return file.readLines().map { parse(it) }.toList()
 }
 
-fun parse(line: String): Function {
+fun parse(line: String): Node {
     return parseFunction(State(line))
 }
 
-private fun parseFunction(state: State): Function {
+fun parseFunction(line: String): Function {
+    return parse(line) as? Function ?: throw RuntimeException("unexpected")
+}
+
+private fun parseFunction(state: State): Node {
     var name = ""
     while (state.pos < state.line.length) {
         val c = state.line[state.pos]
@@ -65,17 +83,21 @@ private fun parseFunction(state: State): Function {
                 '(' -> {
                     state.pos++
                     state.parenDepth++
-                    return Function(name, parseList(state))
+                    val sub = parseList(state)
+                    if (sub.isEmpty()) {
+                        return Label(name.trim())
+                    }
+                    return Function(name.trim(), sub)
                 }
                 ')' -> {
                     state.parenDepth--
                     if (state.parenDepth < 0) {
                         throw RuntimeException("Unmatched right paren: ${state.line}")
                     }
-                    return Function(name, listOf())
+                    return Label(name.trim())
                 }
                 ',' -> {
-                    return Function(name, listOf())
+                    return Label(name.trim())
                 }
                 else -> {
                     name += c
@@ -84,11 +106,11 @@ private fun parseFunction(state: State): Function {
             }
         }
     }
-    return Function(name, listOf())
+    return Label(name)
 }
 
-private fun parseList(state: State): List<Function> {
-    val result = mutableListOf<Function>()
+private fun parseList(state: State): List<Node> {
+    val result = mutableListOf<Node>()
     while (state.pos < state.line.length) {
         when (state.line[state.pos]) {
             ',' -> state.pos++
