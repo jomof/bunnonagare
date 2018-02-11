@@ -1,0 +1,30 @@
+phrase
+ wa
+ ni
+ wo
+ ga
+verb
+ past
+  positive
+  negative
+ non-past
+  positive
+  negative
+noun
+adjective
+ i
+  past
+   positive
+   negative
+  non-past
+   positive
+   negative
+ na
+  past
+   positive
+   negative
+  non-past
+   positive
+   negative
+ no
+adverb

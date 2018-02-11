@@ -8,21 +8,21 @@ class TreeEditDistance {
 
     @Test
     fun identity() {
-        val result = parse("a(b,c)")
+        val result = parseLispy("a(b,c)")
         val distance = distance(result, result)
         assertThat(distance).isEqualTo(0)
     }
 
     @Test
     fun label() {
-        val distance = distance(parse("a"), parse("b"))
+        val distance = distance(parseLispy("a"), parseLispy("b"))
         assertThat(distance).isEqualTo(1)
     }
 
     @Test
     fun grammar() {
         val all =
-                parse(File("C:\\Users\\jomof\\IdeaProjects\\bunnonagare\\grammar.txt"))
+                parseLispy(File("C:\\Users\\jomof\\IdeaProjects\\bunnonagare\\grammar.txt"))
                         .filterIsInstance<Function>()
                         .filter { it.name == "sentence" }
                         .map { Function("", it.parms.drop(1)) }

@@ -1,7 +1,5 @@
 package com.jomofisher
 
-import java.io.File
-
 open class Node
 
 class Label(val label: String) : Node() {
@@ -14,7 +12,7 @@ class Label(val label: String) : Node() {
     }
 }
 
-class Function(val name: String, val parms: List<Node>) : Node() {
+class Function(val name: String, val parms: SList<Node>?) : Node() {
     init {
         if (parms.isEmpty()) throw RuntimeException("should be label")
     }
@@ -39,89 +37,26 @@ class Function(val name: String, val parms: List<Node>) : Node() {
     }
 }
 
-private class State(
-        val line: String,
-        var pos: Int = 0,
-        var inQuote: Boolean = false,
-        var parenDepth: Int = 0)
-
-fun parse(file: File): List<Node> {
-    return file.readLines().map { parse(it) }.toList()
-}
-
-fun parse(line: String): Node {
-    return parseFunction(State(line))
-}
-
-fun parseFunction(line: String): Function {
-    return parse(line) as? Function ?: throw RuntimeException("unexpected")
-}
-
-private fun parseFunction(state: State): Node {
-    var name = ""
-    while (state.pos < state.line.length) {
-        val c = state.line[state.pos]
-        if (state.inQuote) {
-            when (c) {
-                '"' -> {
-                    name += c
-                    state.inQuote = false
-                    state.pos++
-                }
-                else -> {
-                    name += c
-                    state.pos++
-                }
-            }
-        } else {
-            when (c) {
-                '"' -> {
-                    name += c
-                    state.inQuote = true
-                    state.pos++
-                }
-                '(' -> {
-                    state.pos++
-                    state.parenDepth++
-                    val sub = parseList(state)
-                    if (sub.isEmpty()) {
-                        return Label(name.trim())
-                    }
-                    return Function(name.trim(), sub)
-                }
-                ')' -> {
-                    state.parenDepth--
-                    if (state.parenDepth < 0) {
-                        throw RuntimeException("Unmatched right paren: ${state.line}")
-                    }
-                    return Label(name.trim())
-                }
-                ',' -> {
-                    return Label(name.trim())
-                }
-                else -> {
-                    name += c
-                    state.pos++
-                }
-            }
-        }
+fun createNode(name: String, children: SList<Node>?): Node {
+    if (children.isEmpty()) {
+        return Label(name)
     }
-    return Label(name)
+    return Function(name, children)
 }
 
-private fun parseList(state: State): List<Node> {
-    val result = mutableListOf<Node>()
-    while (state.pos < state.line.length) {
-        when (state.line[state.pos]) {
-            ',' -> state.pos++
-            ')' -> {
-                state.pos++
-                return result
-            }
-            else -> {
-                result += parseFunction(state)
-            }
-        }
+fun Node.destructure(): Pair<String, SList<Node>?> {
+    return when (this) {
+        is Function -> Pair(name, parms)
+        is Label -> Pair(label, slistOf())
+        else -> throw RuntimeException("$this")
     }
-    return result
+}
+
+fun Node.invert(parent: SList<Node>? = null): SList<Node>? {
+    val (name, parms) = destructure()
+    return parms.invert(slistOf(Label(name))).push(createNode(name, parent))
+}
+
+fun SList<Node>?.invert(parent: SList<Node>? = null): SList<Node>? {
+    return map { it.invert(parent) }.flatten()
 }

@@ -9,16 +9,9 @@ class Differ {
     private val insertCost = 1
     private val renameCost = 1
 
-    private fun createNode(label: String, parms: List<Node>): Node {
-        return when {
-            parms.isEmpty() -> Label(label)
-            else -> Function(label, parms)
-        }
-    }
-
     private fun deleteLeft(t: Function): Pair<Node, Node> {
-        val left = t.parms[0]
-        val remainder = t.parms.drop(1).toList()
+        val left = t.parms.head()
+        val remainder = t.parms.drop(1)
         if (remainder.isEmpty()) {
             return Pair(left, Empty())
         }
@@ -39,9 +32,9 @@ class Differ {
     private fun d(t1: Function, t2: Function): Int {
         val (t1Left, t1MinusLeft) = deleteLeft(t1)
         val (t2Left, t2MinusLeft) = deleteLeft(t2)
-        val delete = distance(t1MinusLeft, t2) + deleteCost
+        val delete = d(t1MinusLeft, t2) + deleteCost
         val insert = d(t1, t2MinusLeft) + insertCost
-        val rename = distance(t1MinusLeft, t2MinusLeft) + cr(t1Left, t2Left)
+        val rename = d(t1MinusLeft, t2MinusLeft) + cr(t1Left, t2Left)
         return min(min(delete, insert), rename)
     }
 
@@ -52,17 +45,17 @@ class Differ {
 
     private fun d(t1: Function, t2: Label): Int {
         val (left, remainder) = deleteLeft(t1)
-        val delete = distance(remainder, t2) + deleteCost
-        val frazzle = distance(left, t2) + distance(remainder, t2)
+        val delete = d(remainder, t2) + deleteCost
+        val frazzle = d(left, t2) + d(remainder, t2)
         return min(delete, frazzle)
     }
 
     private fun d(t1: Function, t2: Empty): Int {
         val (_, remainder) = deleteLeft(t1)
-        return distance(remainder, t2) + deleteCost
+        return d(remainder, t2) + deleteCost
     }
 
-    fun d(t1: Function, t2: Node): Int {
+    private fun d(t1: Function, t2: Node): Int {
         return when (t2) {
             is Function -> d(t1, t2)
             is Label -> d(t1, t2)
@@ -78,7 +71,7 @@ class Differ {
         return min(delete, frazzle)
     }
 
-    fun d(t1: Label, t2: Node): Int {
+    private fun d(t1: Label, t2: Node): Int {
         return when (t2) {
             is Function -> d(t1, t2)
             is Label -> cr(t1, t2)
@@ -87,7 +80,7 @@ class Differ {
         }
     }
 
-    fun d(t1: Empty, t2: Node): Int {
+    private fun d(t1: Empty, t2: Node): Int {
         return when (t2) {
             is Function -> d(t1, t2)
             is Label -> insertCost
@@ -95,14 +88,17 @@ class Differ {
             else -> throw RuntimeException("unexpected")
         }
     }
+
+    fun d(t1: Node, t2: Node): Int {
+        return when (t1) {
+            is Function -> d(t1, t2)
+            is Label -> d(t1, t2)
+            is Empty -> d(t1, t2)
+            else -> throw RuntimeException("unexpected")
+        }
+    }
 }
 
 fun distance(t1: Node, t2: Node): Int {
-    val diff = Differ()
-    return when (t1) {
-        is Function -> diff.d(t1, t2)
-        is Label -> diff.d(t1, t2)
-        is Empty -> diff.d(t1, t2)
-        else -> throw RuntimeException("unexpected")
-    }
+    return Differ().d(t1, t2)
 }
