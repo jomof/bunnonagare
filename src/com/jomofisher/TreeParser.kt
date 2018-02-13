@@ -15,6 +15,11 @@ class TreeParser(private val lines: List<String>) {
         while (line < lines.size && lines[line].startsWith(nextPrefix)) {
             children = children.push(parseNode(indent + 1, prefix))
         }
+        if (prefix.endsWith(")") && prefix.contains("(")) {
+            // Treat the last bit as lispy
+            val (name, lispyChildren) = parseLispy(prefix)
+            return createNode(name, lispyChildren + children.reversed())
+        }
         return createNode(prefix, children.reversed())
     }
 

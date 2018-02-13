@@ -2,7 +2,6 @@ package com.jomofisher
 
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
-import java.io.File
 
 internal class TreeParserTest {
     @Test
@@ -55,6 +54,13 @@ internal class TreeParserTest {
     }
 
     @Test
+    fun inlineLispy() {
+        val result = TreeParser(listOf("a", " b", " c(d, e)")).parse()
+        assertThat(result.toString()).isEqualTo("[a(a-b,a-c(d,e))]")
+        assertThat(result.invert().toString()).isEqualTo("[a, a-b(a), a-c(a), d(a-c), e(a-c)]")
+    }
+
+    @Test
     fun nested() {
         val result = parseLispy("a(b(c(d)))")
         assertThat(result.toString()).isEqualTo("a(b(c(d)))")
@@ -63,11 +69,9 @@ internal class TreeParserTest {
 
     @Test
     fun ontology() {
-        val lines = File(
-                "C:\\Users\\jomof\\IdeaProjects\\bunnonagare\\ontology.txt")
-                .readLines()
-        TreeParser(lines).parse()
-                .invert()
+        val ontology = createOntologyFromFile(ontologyFile)
+        ontology
+                .forward
                 .forEach { println("$it") }
     }
 }

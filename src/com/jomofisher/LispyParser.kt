@@ -67,19 +67,22 @@ private class LispyParser(
                 ',' -> pos++
                 ')' -> {
                     pos++
-                    return result
+                    return result.reversed()
                 }
                 else -> {
-                    result += parseNode()
+                    result = result.push(parseNode())
                 }
             }
         }
-        return result
+        return result.reversed()
     }
 }
 
-fun parseLispy(file: File): List<Node> {
-    return file.readLines().map { LispyParser(it).parseNode() }.toList()
+fun parseLispy(file: File): SList<Node>? {
+    return file
+            .readLines()
+            .map { LispyParser(it).parseNode() }
+            .toSList()
 }
 
 fun parseLispy(line: String): Node {

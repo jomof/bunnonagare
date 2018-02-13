@@ -22,11 +22,10 @@ class TreeEditDistance {
     @Test
     fun grammar() {
         val all =
-                parseLispy(File("C:\\Users\\jomof\\IdeaProjects\\bunnonagare\\grammar.txt"))
+                parseLispy(File("C:\\Users\\jomof\\IdeaProjects\\bunnonagare\\data\\grammar.txt"))
                         .filterIsInstance<Function>()
                         .filter { it.name == "sentence" }
                         .map { Function("", it.parms.drop(1)) }
-                        .plus(Label(""))
                         .toTypedArray()
         val from = all
                 .mapIndexed { i, a ->
@@ -35,7 +34,6 @@ class TreeEditDistance {
                             .map { b -> distance(a, b) }
                             .toTypedArray()
                 }.toTypedArray()
-
         from.mapIndexed { i, to ->
             to.forEachIndexed { j, distance ->
                 println("${all[i]} -> ${all[j]} = $distance")

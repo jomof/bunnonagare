@@ -48,11 +48,11 @@ fun <T> slistOf(value: T): SList<T>? {
     return SList(value)
 }
 
-operator fun <T> SList<T>?.plus(add: T): SList<T>? {
+fun <T> SList<T>?.slowlyPostpend(add: T): SList<T>? {
     if (this == null) {
         return SList(add)
     }
-    return SList(value, next + add)
+    return SList(value, next.slowlyPostpend(add))
 }
 
 fun <T> SList<T>?.reversed(): SList<T>? {
@@ -83,21 +83,44 @@ fun <T> slistOf(vararg values: T): SList<T>? {
     return last
 }
 
-fun <T1, T2> SList<T1>?.map(action: (T1) -> T2): SList<T2>? {
-    if (this == null) {
-        return null
+fun <T1, T2> SList<T1>?.mapReversed(action: (T1) -> T2): SList<T2>? {
+    var result = slistOf<T2>()
+    var current = this
+    while (current != null) {
+        result = result.push(action(current.value))
+        ++current
     }
-    return SList(action(value), next.map(action))
+    return result
+}
+
+fun <T1, T2> SList<T1>?.map(action: (T1) -> T2): SList<T2>? {
+    return mapReversed(action).reversed()
+}
+
+fun <T1, T2> SList<T1>?.mapIndexedReversed(action: (Int, T1) -> T2): SList<T2>? {
+    var result = slistOf<T2>()
+    var current = this
+    var index = 0
+    while (current != null) {
+        result = SList(action(index++, current.value), result)
+        current = current.next
+    }
+    return result
+}
+
+
+fun <T1, T2> SList<T1>?.mapIndexed(action: (Int, T1) -> T2): SList<T2>? {
+    return mapIndexedReversed(action).reversed()
 }
 
 fun <T> SList<SList<T>?>?.flatten(): SList<T>? {
     var result = slistOf<T>()
     forEach { outer ->
         outer.forEach { inner ->
-            result += inner
+            result = result.push(inner)
         }
     }
-    return result
+    return result.reversed()
 }
 
 fun <T> SList<T>?.head(): T {
@@ -125,10 +148,82 @@ fun <T> SList<T>?.size(): Int {
     return size
 }
 
-fun <T> Iterable<T>.toSList(): SList<T>? {
+fun <T> Iterable<T>.toSListReversed(): SList<T>? {
     var result = slistOf<T>()
-    reversed().forEach {
-        result += it
+    forEach {
+        result = result.push(it)
     }
     return result
+}
+
+fun <T> Iterable<T>.toSList(): SList<T>? {
+    return reversed().toSListReversed()
+}
+
+fun <T> Array<T>.toSListReversed(): SList<T>? {
+    var result = slistOf<T>()
+    forEach {
+        result = result.push(it)
+    }
+    return result
+}
+
+fun <T> Array<T>.toSList(): SList<T>? {
+    return reversed().toSListReversed()
+}
+
+inline fun <reified T> SList<*>?.filterIsInstanceReversed(): SList<T>? {
+    var result = slistOf<T>()
+    forEach {
+        when (it) {
+            is T -> result = result.push(it)
+        }
+    }
+    return result
+}
+
+inline fun <reified T> SList<*>?.filterIsInstance(): SList<T>? {
+    return filterIsInstanceReversed<T>().reversed()
+}
+
+fun <T> SList<T>?.filterReversed(predicate: (T) -> Boolean): SList<T>? {
+    var result = slistOf<T>()
+    forEach {
+        if (predicate(it)) {
+            result = result.push(it)
+        }
+    }
+    return result
+}
+
+fun <T> SList<T>?.filter(predicate: (T) -> Boolean): SList<T>? {
+    return filterReversed(predicate).reversed()
+}
+
+inline fun <T> SList<T>?.toList(): List<T> {
+    val result = mutableListOf<T>()
+    forEach { v ->
+        result.add(v)
+    }
+    return result
+}
+
+inline fun <reified T> SList<T>?.toTypedArray(): Array<T> {
+    return toList().toTypedArray()
+}
+
+tailrec fun <T : Comparable<T>> SList<T>?.min(): T? {
+    if (this == null) {
+        return null
+    }
+    var min = value
+    var current = this
+    while (current != null) {
+        val e = current.value
+        if (min > e) {
+            min = e
+        }
+        ++current
+    }
+    return min
 }
