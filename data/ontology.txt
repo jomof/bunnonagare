@@ -28,8 +28,11 @@ adjective
    negative
  no
 adverb
-form
+stem
  verb
-  i(買い)
+  i-form(買い, ござい, すみ, いき, かえり, し, 見, いらっしゃい, き, 食べ)
+suffix
+ verb
+  i-form(ます, ました, ません)
 
 

@@ -15,10 +15,10 @@ class Label(val label: String) : Node() {
 }
 
 class Function(val name: String, val parms: SList<Node>?) : Node() {
+
     init {
         if (parms.isEmpty()) throw RuntimeException("should be label")
     }
-
     override fun toString(): String {
         val builder = StringBuilder()
         builder.append(name)
@@ -37,6 +37,53 @@ class Function(val name: String, val parms: SList<Node>?) : Node() {
     override fun equals(other: Any?): Boolean {
         return this.toString() == other.toString()
     }
+
+}
+
+open class OrdinalNode(val ordinal: Int) : Node()
+class OrdinalLabel(ordinal: Int) : OrdinalNode(ordinal) {
+    override fun toString(): String {
+        return "$ordinal"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is OrdinalLabel) {
+            return false
+        }
+        return this.ordinal == other.ordinal
+    }
+
+    override fun hashCode(): Int {
+        return ordinal
+    }
+}
+
+class OrdinalFunction(ordinal: Int, val parms: SList<OrdinalNode>?) : OrdinalNode(ordinal) {
+    init {
+        if (parms.isEmpty()) throw RuntimeException("should be label")
+    }
+
+    override fun toString(): String {
+        val builder = StringBuilder()
+        builder.append(ordinal)
+        if (!parms.isEmpty()) {
+            builder.append("(")
+            builder.append(parms.joinToString(","))
+            builder.append(")")
+        }
+        return builder.toString()
+    }
+
+    override fun hashCode(): Int {
+        return ordinal
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is OrdinalFunction) {
+            return false
+        }
+        return this.ordinal == other.ordinal
+    }
 }
 
 fun createNode(name: String, children: SList<Node>?): Node {
@@ -44,6 +91,13 @@ fun createNode(name: String, children: SList<Node>?): Node {
         return Label(name)
     }
     return Function(name, children)
+}
+
+fun createNode(ordinal: Int, children: SList<OrdinalNode>?): OrdinalNode {
+    if (children.isEmpty()) {
+        return OrdinalLabel(ordinal)
+    }
+    return OrdinalFunction(ordinal, children)
 }
 
 operator fun Node.component1(): String {
@@ -82,5 +136,12 @@ fun <T : Node> SList<T>?.writeToFile(file: File) {
     file.delete()
     forEach {
         file.appendText("$it\n")
+    }
+}
+
+fun <T : Node> SList<T>?.toNames(): SList<String>? {
+    return map {
+        val (name, _) = it
+        name
     }
 }

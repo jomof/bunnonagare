@@ -1,0 +1,2 @@
+line(A, "What kind of person is Ms. Hayashi?", ((((林, さん), は), ((どん, な), 人)), です), か)
+line(B, "She is a kind person.", ((親切, な), 人), です)

@@ -3,11 +3,10 @@ package com.jomofisher
 import java.io.File
 import kotlin.math.max
 
-class FragmentIndexBuilder {
-    val map: MutableMap<Node, Int> = mutableMapOf()
-    val table: MutableMap<Int, Node> = mutableMapOf()
-    var nextLookupValue = 0
-}
+class FragmentIndexBuilder(
+        val map: MutableMap<Node, Int> = mutableMapOf(),
+        val table: MutableMap<Int, Node> = mutableMapOf(),
+        var nextLookupValue: Int = 0)
 
 fun FragmentIndexBuilder.createLookupIfNotPresent(value: Node) {
     if (map.containsKey(value)) {
@@ -57,4 +56,41 @@ fun FragmentIndexBuilder.toIndexFunctions(): SList<Node>? {
                         Label(index.toString()),
                         node))
     }.toSList()
+}
+
+fun FragmentIndexBuilder.rewriteToOrdinal(label: Label): OrdinalLabel {
+    createLookupIfNotPresent(label)
+    val nodeOrdinal = toLookupValue(label)
+    return OrdinalLabel(nodeOrdinal)
+}
+
+fun FragmentIndexBuilder.rewriteToOrdinal(function: Function): OrdinalFunction {
+    createLookupIfNotPresent(function)
+    val nodeOrdinal = toLookupValue(function)
+    val ordinalParms = function
+            .parms
+            .map { rewriteToOrdinal(it) }
+            .filterIsInstance<OrdinalNode>()
+    return OrdinalFunction(nodeOrdinal, ordinalParms)
+}
+
+fun FragmentIndexBuilder.rewriteToOrdinal(node: Node): OrdinalNode {
+    return when (node) {
+        is Function -> rewriteToOrdinal(node)
+        is Label -> rewriteToOrdinal(node)
+        else -> throw RuntimeException("$node")
+    }
+}
+
+fun FragmentIndexBuilder.rewriteToOrdinals(nodes: SList<Function>?): SList<OrdinalFunction>? {
+    return nodes.map {
+        rewriteToOrdinal(it)
+    }
+}
+
+fun FragmentIndexBuilder.copy(): FragmentIndexBuilder {
+    return FragmentIndexBuilder(
+            HashMap(map).toMutableMap(),
+            HashMap(table).toMutableMap(),
+            nextLookupValue)
 }

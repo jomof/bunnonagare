@@ -1,104 +1,121 @@
 package com.jomofisher
 
+import kotlin.math.max
 import kotlin.math.min
 
-class Empty : Node()
+class Empty : OrdinalNode(-1)
 
-class Differ {
+class Differ(val cached: MutableMap2d<Int, Int, Int>) {
     private val deleteCost = 1
     private val insertCost = 1
     private val renameCost = 1
 
-    private fun deleteLeft(t: Function): Pair<Node, Node> {
+    private fun deleteLeft(t: OrdinalFunction): Pair<OrdinalNode, OrdinalNode> {
         val left = t.parms.head()
         val remainder = t.parms.drop(1)
         if (remainder.isEmpty()) {
             return Pair(left, Empty())
         }
         return when (left) {
-            is Label -> Pair(left, createNode(t.name, remainder))
-            is Function -> Pair(left, createNode(t.name, left.parms.plus(remainder)))
+            is OrdinalLabel -> Pair(left, createNode(t.ordinal, remainder))
+            is OrdinalFunction -> Pair(left, createNode(t.ordinal, left.parms.plus(remainder)))
             else -> throw RuntimeException("unexpected")
         }
     }
 
-    private fun cr(left: Node, right: Node): Int {
-        if (left is Label && right is Label && left.label != right.label) {
+    private fun cr(left: OrdinalNode, right: OrdinalNode): Int {
+        if (left.ordinal != right.ordinal) {
             return renameCost
         }
         return 0
     }
 
-    private fun d(t1: Function, t2: Function): Int {
-        val (t1Left, t1MinusLeft) = deleteLeft(t1)
-        val (t2Left, t2MinusLeft) = deleteLeft(t2)
-        val delete = d(t1MinusLeft, t2) + deleteCost
-        val insert = d(t1, t2MinusLeft) + insertCost
-        val rename = d(t1MinusLeft, t2MinusLeft) + cr(t1Left, t2Left)
-        return min(min(delete, insert), rename)
+    private fun memoized(t1: Int, t2: Int, action: () -> Int): Int {
+        val low = min(t1, t2)
+        val high = max(t1, t2)
+        val cachedResult = cached[low, high]
+        if (cachedResult != null) {
+            return cachedResult
+        }
+        val result = action()
+        cached[low, high] = result
+        return result
     }
 
-    private fun d(t1: Empty, t2: Function): Int {
+    private fun d(t1: OrdinalFunction, t2: OrdinalFunction): Int {
+        return memoized(t1.ordinal, t2.ordinal) {
+            val (t1Left, t1MinusLeft) = deleteLeft(t1)
+            val (t2Left, t2MinusLeft) = deleteLeft(t2)
+            val delete = d(t1MinusLeft, t2) + deleteCost
+            val insert = d(t1, t2MinusLeft) + insertCost
+            val rename = d(t1MinusLeft, t2MinusLeft) + cr(t1Left, t2Left)
+            min(min(delete, insert), rename)
+        }
+    }
+
+    private fun d(t1: Empty, t2: OrdinalFunction): Int {
         val (_, remainder) = deleteLeft(t2)
         return d(t1, remainder) + insertCost
     }
 
-    private fun d(t1: Function, t2: Label): Int {
-        val (left, remainder) = deleteLeft(t1)
-        val delete = d(remainder, t2) + deleteCost
-        val frazzle = d(left, t2) + d(remainder, t2)
-        return min(delete, frazzle)
+    private fun d(t1: OrdinalFunction, t2: OrdinalLabel): Int {
+        return memoized(t1.ordinal, t2.ordinal) {
+            val (left, remainder) = deleteLeft(t1)
+            val delete = d(remainder, t2) + deleteCost
+            val frazzle = d(left, t2) + d(remainder, t2)
+            min(delete, frazzle)
+        }
     }
 
-    private fun d(t1: Function, t2: Empty): Int {
+    private fun d(t1: OrdinalFunction, t2: Empty): Int {
         val (_, remainder) = deleteLeft(t1)
         return d(remainder, t2) + deleteCost
     }
 
-    private fun d(t1: Function, t2: Node): Int {
+    private fun d(t1: OrdinalFunction, t2: OrdinalNode): Int {
         return when (t2) {
-            is Function -> d(t1, t2)
-            is Label -> d(t1, t2)
+            is OrdinalFunction -> d(t1, t2)
+            is OrdinalLabel -> d(t1, t2)
             is Empty -> d(t1, t2)
             else -> throw RuntimeException("unexpected")
         }
     }
 
-    private fun d(t1: Label, t2: Function): Int {
+    private fun d(t1: OrdinalLabel, t2: OrdinalFunction): Int {
         val (left, remainder) = deleteLeft(t2)
         val delete = d(t1, remainder) + insertCost
         val frazzle = d(t1, left) + d(t1, remainder)
         return min(delete, frazzle)
     }
 
-    private fun d(t1: Label, t2: Node): Int {
+    private fun d(t1: OrdinalLabel, t2: OrdinalNode): Int {
         return when (t2) {
-            is Function -> d(t1, t2)
-            is Label -> cr(t1, t2)
+            is OrdinalFunction -> d(t1, t2)
+            is OrdinalLabel -> cr(t1, t2)
             is Empty -> deleteCost
             else -> throw RuntimeException("unexpected")
         }
     }
 
-    private fun d(t1: Empty, t2: Node): Int {
+    private fun d(t1: Empty, t2: OrdinalNode): Int {
         return when (t2) {
-            is Function -> d(t1, t2)
-            is Label -> insertCost
+            is OrdinalFunction -> d(t1, t2)
+            is OrdinalLabel -> insertCost
             is Empty -> 0
             else -> throw RuntimeException("unexpected")
         }
     }
 
-    fun d(t1: Node, t2: Node): Int {
+    fun d(t1: OrdinalNode, t2: OrdinalNode): Int {
         return when (t1) {
-            is Function -> d(t1, t2)
-            is Label -> d(t1, t2)
+            is OrdinalFunction -> d(t1, t2)
+            is OrdinalLabel -> d(t1, t2)
             is Empty -> d(t1, t2)
             else -> throw RuntimeException("unexpected")
         }
     }
 }
 
-fun distance(t1: Node, t2: Node): Int {
-    return Differ().d(t1, t2)
+fun distance(t1: OrdinalNode, t2: OrdinalNode): Int {
+    return Differ(mutableMap2dOf()).d(t1, t2)
 }

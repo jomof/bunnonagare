@@ -20,8 +20,12 @@ fun Dialogs.allSentences(): SList<Function>? {
 fun createDialogFromFolder(folder: File): Dialogs {
     var result = folder
             .walkTopDown()
-            .filter { it.isFile }
-            .map { Function("dialog", parseLispy(it)) }
+            .filter {
+                it.isFile
+            }
+            .map {
+                Function("dialog", parseLispy(it))
+            }
             .toList()
             .toSList()
     return Dialogs(result)

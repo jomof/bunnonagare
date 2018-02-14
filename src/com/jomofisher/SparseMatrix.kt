@@ -1,6 +1,6 @@
 package com.jomofisher
 
-class SparseMatrix<T>(val size: Int) {
+class SparseMatrix<T>(private val size: Int) {
     val map: MutableMap<Int, MutableMap<Int, T>> = mutableMapOf()
     operator fun set(i: Int, j: Int, v: T) {
         assert(i < size)

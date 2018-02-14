@@ -3,13 +3,16 @@ sentence("Meeting is not a pleasure", ((会議, は), (楽しみ, じゃない))
 sentence("It is a chair", ((それ, は), 椅子), です)
 sentence("House is small", ((うち, は), 小さい), です)
 sentence("Chair is small", ((椅子, は), 小さい), です)
-sentence("This chair is not old (casual)", (((こ, の, いす), は), (古, くない)), です)
-sentence("Japanese house is small", (((日本,の,うち), は), 小さい), です)
+sentence("This chair is not old (casual)", ((((こ, の), いす), は), (古, くない)), です)
+sentence("Japanese house is small", ((((日本, の), うち), は), 小さい), です)
 sentence("The car is not big (casual)", ((車, は), (大き, くない)), です)
 sentence("The book was not cheap (casual)", ((本, は), (安, くなかった)), です)
-sentence("This pen is blue", (((こ, の, ペン), は), 青い), です)
+sentence("This pen is blue", ((((こ, の), ペン), は), 青い), です)
 sentence("I was not good at golf", ((私,は), (ゴルフ,が), 下手), でした)
-
+sentence("We had a meal at a famous restaurant", ((((私, たち), は), (((有名, な), レストラン), で), (食事, を))), (し, ました))
+sentence("Chicken is cheap", (((とり, にく), は), やすい), です)
+sentence("We had a meal at a clean restaurant", ((((((私,たち), は), (きれい, な)),　(レストラン, で)), (食事, を)), (し, ました))
+sentence("This flower is beautiful", ((((こ, の), 花), は), きれい), です)
 
 
 

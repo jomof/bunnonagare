@@ -27,7 +27,6 @@ fun <T> SList<T>?.forEachIndexed(action: (Int, T) -> Unit): Unit {
     }
 }
 
-
 fun <T> SList<T>?.joinToString(delimiter: String): String {
     val sb = StringBuilder()
 
@@ -212,7 +211,7 @@ inline fun <reified T> SList<T>?.toTypedArray(): Array<T> {
     return toList().toTypedArray()
 }
 
-tailrec fun <T : Comparable<T>> SList<T>?.min(): T? {
+fun <T : Comparable<T>> SList<T>?.min(): T? {
     if (this == null) {
         return null
     }
@@ -226,4 +225,45 @@ tailrec fun <T : Comparable<T>> SList<T>?.min(): T? {
         ++current
     }
     return min
+}
+
+fun <T> SList<T>?.takeReversed(n: Int): SList<T>? {
+    var current = this
+    var i = 0
+    var result = slistOf<T>()
+    while (current != null && i < n) {
+        result = result.push(current.value)
+        ++current
+        ++i
+    }
+    return result
+}
+
+fun <T> SList<T>?.take(n: Int): SList<T>? {
+    return takeReversed(n).reversed()
+}
+
+operator fun <T> SList<T>?.get(i: Int): T {
+    var current = this
+    var i = i
+    while (current != null && i != 0) {
+        ++current
+        --i
+    }
+    if (i == 0) {
+        return current!!.value
+    }
+    throw RuntimeException("no such element")
+}
+
+operator fun <T> SList<T>?.component1(): T {
+    return get(0)
+}
+
+operator fun <T> SList<T>?.component2(): T {
+    return get(1)
+}
+
+operator fun <T> SList<T>?.component3(): T {
+    return get(2)
 }

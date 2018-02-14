@@ -1,5 +1,6 @@
 package com.jomofisher
 
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class LintTest {
@@ -12,7 +13,10 @@ class LintTest {
                 val (_, parms) = it
                 lintFragment(Function("", parms.drop(1)), check)
             } catch (e: RuntimeException) {
-                throw RuntimeException("sentence '$it': ${e.message}")
+                if (e is KotlinNullPointerException) {
+                    throw e
+                }
+                throw RuntimeException("sentence '$it': $e")
             }
         }
     }
@@ -39,12 +43,33 @@ class LintTest {
 
     @Test
     fun stuffThatCantEndAThing() {
-        val stuff = arrayOf("ます", "ました", "ません")
+        val stuff = arrayOf("ます", "ました", "ません", "さん", "たち")
         lintSentences(readSentencesFromEveryWhere()) { node, _, _ ->
             val (name, _) = node
             stuff.forEach {
                 if (name != it && name.endsWith(it)) {
                     throw RuntimeException("$name can't end with $it. It should be broken up.")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun iverbStemMustMatchSuffix() {
+        val ontology = createOntologyFromFile(ontologyFile)
+        val suffix = ontology.leafsUnder("suffix-verb-i-form")
+        val stem = ontology.leafsUnder("stem-verb-i-form")
+        assertThat(suffix.size).isGreaterThan(0)
+        assertThat(stem.size).isGreaterThan(0)
+        lintSentences(readSentencesFromEveryWhere()) { node, _, _ ->
+            val (_, parms) = node
+            if (parms.size() == 2) {
+                val (left, _) = parms!!.value
+                val (right, _) = parms.next!!.value
+                val leftIsStem = stem.contains(left)
+                val rightIsSuffix = suffix.contains(right)
+                if (leftIsStem != rightIsSuffix) {
+                    throw RuntimeException("stem '$left' does not agree with '$right")
                 }
             }
         }
@@ -67,48 +92,15 @@ class LintTest {
     }
 
     @Test
-    fun stuffTheMustBeMiddleOfThree() {
-        val stuffThatMustBeLastOfTwo = arrayOf("の")
-        lintSentences(readSentencesFromEveryWhere()) { node, index, of ->
-            val (name, _) = node
-            if (stuffThatMustBeLastOfTwo.contains(name)) {
-                if (of != 3) {
-                    throw RuntimeException("$name must be in function of three parameters")
-                }
-                if (index != 1) {
-                    throw RuntimeException("$name must be middle")
-                }
-            }
-        }
-    }
-
-    @Test
-    fun stuffTheMustBeMiddleOfThreeOrLastOfTwo() {
-        val stuffThatMustBeLastOfTwo = arrayOf("と")
-        lintSentences(readSentencesFromEveryWhere()) { node, index, of ->
-            val (name, _) = node
-            if (stuffThatMustBeLastOfTwo.contains(name)) {
-                if (of != 3 && of != 2) {
-                    throw RuntimeException("$name must be in function of three parameters")
-                }
-                if (index != 1) {
-                    throw RuntimeException("$name must be middle of three or last of two")
-                }
-            }
-        }
-    }
-
-
-    @Test
     fun stuffTheMustBeLastOfTwo() {
         val stuffThatMustBeLastOfTwo = arrayOf(
                 "で", "ね", "は", "が", "に", "を", "くなかった", "くない", "か", "ました",
-                "見ます", "します", "にも")
+                "見ます", "します", "にも", "な", "さん", "たち", "と", "の")
         lintSentences(readSentencesFromEveryWhere()) { node, index, of ->
             val (name, _) = node
             if (stuffThatMustBeLastOfTwo.contains(name)) {
                 if (of != 2) {
-                    throw RuntimeException("$name must be in function of one or two parameters")
+                    throw RuntimeException("$name must be in function of two parameters")
                 }
                 if (index != of - 1) {
                     throw RuntimeException("$name must be last")

@@ -1,12 +1,10 @@
 package com.jomofisher
 
-import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import kotlin.math.max
 import kotlin.math.min
 
 class ProcessingTest {
-
     private fun getJapaneseOnly(sentences: SList<Function>?): SList<Function>? {
         return sentences
                 .map { Function("", it.parms.drop(1)) }
@@ -14,28 +12,42 @@ class ProcessingTest {
 
     @Test
     fun recreate() {
-        val sentences = readSentences(sentencesFile)
+        val grammarSentences = readSentences(sentencesFile)
+        val dialogSentences = createDialogFromFolder(dialogFolder)
+                .allSentences()
+        val sentences = grammarSentences + dialogSentences
         val japaneseOnly = getJapaneseOnly(sentences)
-        val fragmentIndex = FragmentIndexBuilder()
+        val sentenceIndex = FragmentIndexBuilder()
                 .appendFile(indexedFragmentsFile)
                 .appendTopLevel(japaneseOnly)
-        assertThat(japaneseOnly!!.value.toString()).isEqualTo("(です)")
-        assertThat(fragmentIndex.toLookupValue(japaneseOnly.value))
-                .isEqualTo(0)
-        fragmentIndex.toIndexFunctions().writeToFile(indexedFragmentsFile)
+        val deepSentenceIndex = sentenceIndex
+                .copy()
+        val ordinalSentences = deepSentenceIndex
+                .rewriteToOrdinals(japaneseOnly)
+                .toTypedArray()
 
+        val originalDistanceTriangle =
+                readFunctionTriples(sentenceDistancesFile, "distance")
+                        .map {
+                            val (name, _) = it
+                            name.toInt()
+                        }
         val distanceTriangle =
-                createTriangle(fragmentIndex.getOrderedFragments())
-                        .map { (s1, s2) -> distance(s1, s2) }
-                        .memoize()
+                originalDistanceTriangle.extendToSize(ordinalSentences.size) { i, j ->
+                    println("calculating distance $i, $j")
+                    distance(ordinalSentences[i], ordinalSentences[j])
+                }.memoize()
 
         val distanceTriangleFunctions = distanceTriangle
-                .mapRows { i, functions ->
-                    Function("distance", functions
-                            .map { Label("$it") as Node }
-                            .push(Label("$i")))
+                .flattenIndexed { i, j, distance ->
+                    Function("distance",
+                            slistOf(
+                                    Label(i.toString()),
+                                    Label(j.toString()),
+                                    Label(distance.toString())))
                 }
 
+        sentenceIndex.toIndexFunctions().writeToFile(indexedFragmentsFile)
         distanceTriangleFunctions.writeToFile(sentenceDistancesFile)
 
         val edges = calculateLearningGraph(distanceTriangle)

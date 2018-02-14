@@ -1,0 +1,2 @@
+line(A, "Is this book interesting?", ((((((こ, の), 本), は), おもしろい), です), か)
+line(B, "No, this book is not interesting.", いいえ, ((((こ, の), 本は), (おもしろ, くない)), です))
