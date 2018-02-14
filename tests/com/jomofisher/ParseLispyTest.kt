@@ -1,6 +1,13 @@
 package com.jomofisher
 
 import com.google.common.truth.Truth.assertThat
+import com.jomofisher.collections.drop
+import com.jomofisher.collections.head
+import com.jomofisher.collections.size
+import com.jomofisher.function.Function
+import com.jomofisher.function.Label
+import com.jomofisher.function.parseLispy
+import com.jomofisher.function.parseLispyFunction
 import org.junit.Test
 
 internal class FunctionKtTest {

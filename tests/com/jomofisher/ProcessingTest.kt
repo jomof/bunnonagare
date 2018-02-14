@@ -1,5 +1,8 @@
 package com.jomofisher
 
+import com.jomofisher.collections.*
+import com.jomofisher.function.*
+import com.jomofisher.function.Function
 import org.junit.Test
 import kotlin.math.max
 import kotlin.math.min
@@ -20,12 +23,10 @@ class ProcessingTest {
         val sentenceIndex = FragmentIndexBuilder()
                 .appendFile(indexedFragmentsFile)
                 .appendTopLevel(japaneseOnly)
-        val deepSentenceIndex = sentenceIndex
-                .copy()
-        val ordinalSentences = deepSentenceIndex
-                .rewriteToOrdinals(japaneseOnly)
+        val deepSentenceIndex = sentenceIndex.copy()
+        val ordinalSentences = japaneseOnly
+                .toOrdinal(deepSentenceIndex)
                 .toTypedArray()
-
         val originalDistanceTriangle =
                 readFunctionTriples(sentenceDistancesFile, "distance")
                         .map {
@@ -51,11 +52,13 @@ class ProcessingTest {
         distanceTriangleFunctions.writeToFile(sentenceDistancesFile)
 
         val edges = calculateLearningGraph(distanceTriangle)
-        println("$edges")
+        println(edges.toStringMapped {
+            if (it == 1) "*" else " "
+        })
     }
 
     private fun calculateLearningGraph(distances: Triangle<Int>): Triangle<Int> {
-        val edges = SparseMatrix<Int>(distances.size)
+        val edges = mutableMap2dOf<Int, Int, Int>()
         val graph = Triangle(distances.size, { i, j -> edges[i, j] ?: 0 })
         val visited = mutableSetOf(0)
 

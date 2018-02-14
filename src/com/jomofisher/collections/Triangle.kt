@@ -1,5 +1,6 @@
-package com.jomofisher
+package com.jomofisher.collections
 
+import com.jomofisher.function.*
 import java.io.File
 import kotlin.math.max
 
@@ -28,20 +29,13 @@ fun <T1, T2> Triangle<T1>.map(action: (T1) -> T2): Triangle<T2> {
     }
 }
 
-fun <T1, T2> Triangle<T1>.mapIndexed(action: (Int, Int, T1) -> T2): Triangle<T2> {
-    return Triangle(size) { i, j ->
-        action(i, j, init(i, j))
-    }
-}
-
 fun <T1, T2> Triangle<T1>.flattenIndexed(action: (Int, Int, T1) -> T2): SList<T2>? {
     var result = slistOf<T2>()
     for (i in (size - 1 downTo 0)) {
-        for (j in (size - 1 downTo 0)) {
-            if (i >= j) {
-                result = result.push(action(i, j, init(i, j)))
-            }
-        }
+        (size - 1 downTo 0)
+                .asSequence()
+                .filter { i >= it }
+                .forEach { result = result.push(action(i, it, init(i, it))) }
     }
     return result
 }
@@ -56,18 +50,6 @@ fun <T> Triangle<T>.forEachRow(action: (Int, SList<T>?) -> Unit) {
     }
 }
 
-fun <T1, T2> Triangle<T1>.mapRows(action: (Int, SList<T1>?) -> T2): SList<T2>? {
-    var result = slistOf<T2>()
-    for (i in (0 until size)) {
-        val rowValues = (0 until size)
-                .filter { i >= it }
-                .toSListReversed()
-                .mapReversed { init(i, it) }
-        result = result.push(action(i, rowValues))
-    }
-    return result.reversed()
-}
-
 inline fun <reified T> Triangle<T>.memoize(): Triangle<T> {
     val arr = Array(size, { i ->
         Array(i + 1, { j ->
@@ -79,18 +61,11 @@ inline fun <reified T> Triangle<T>.memoize(): Triangle<T> {
     })
 }
 
-fun <T> createTriangle(array: Array<T>): Triangle<Pair<T, T>> {
-    return Triangle(array.size) { i, j ->
-        assert(i > j)
-        Pair(array[i], array[j])
-    }
-}
-
 fun readFunctionTriples(
         file: File,
         name: String): Triangle<Node> {
     val functions = parseLispy(file)
-    var sparse = SparseMatrix<Node>(functions.size())
+    val sparse = mutableTriangleOf<Int, Node>()
     var size = 0
     functions
             .keepName(name)
@@ -100,7 +75,14 @@ fun readFunctionTriples(
                 size = max(size, max(i, j))
                 sparse[i, j] = parms[2]
             }
-    return Triangle(size + 1, { i, j -> sparse[i, j]!! })
+    return Triangle(size + 1, { i, j ->
+        val x = sparse[i, j]
+        if (x == null) {
+            println("$i, $j")
+            sparse[i, j]
+        }
+        x!!
+    })
 }
 
 fun <T> Triangle<T>.extendToSize(
@@ -113,6 +95,18 @@ fun <T> Triangle<T>.extendToSize(
             other(i, j)
         }
     })
+}
+
+fun <T> Triangle<T>.toStringMapped(action: (T) -> String): String {
+    val sb = StringBuilder()
+    forEachRow { i, row ->
+        sb.append("$i".padStart(4) + ":")
+        row.forEachIndexed { j, v ->
+            sb.append(action(v))
+        }
+        sb.appendln()
+    }
+    return sb.toString()
 }
 
 

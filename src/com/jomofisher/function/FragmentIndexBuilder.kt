@@ -1,5 +1,6 @@
-package com.jomofisher
+package com.jomofisher.function
 
+import com.jomofisher.collections.*
 import java.io.File
 import kotlin.math.max
 

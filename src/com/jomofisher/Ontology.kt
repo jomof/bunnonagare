@@ -1,9 +1,14 @@
 package com.jomofisher
 
+import com.jomofisher.collections.*
+import com.jomofisher.function.Function
+import com.jomofisher.function.Label
+import com.jomofisher.function.Node
+import com.jomofisher.function.TreeParser
 import java.io.File
 
 class Ontology(val forward: SList<Node>?) {
-    val backward = forward.invert()
+    //val backward = forward.invert()
 }
 
 private fun allLeafs(node: Node): SList<String>? {

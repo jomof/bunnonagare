@@ -1,11 +1,11 @@
-package com.jomofisher
+package com.jomofisher.function
 
-import kotlin.math.max
+import com.jomofisher.collections.*
 import kotlin.math.min
 
 class Empty : OrdinalNode(-1)
 
-class Differ(val cached: MutableMap2d<Int, Int, Int>) {
+class Differ(private val cached: MutableTriangle<Int, Int>) {
     private val deleteCost = 1
     private val insertCost = 1
     private val renameCost = 1
@@ -31,14 +31,15 @@ class Differ(val cached: MutableMap2d<Int, Int, Int>) {
     }
 
     private fun memoized(t1: Int, t2: Int, action: () -> Int): Int {
-        val low = min(t1, t2)
-        val high = max(t1, t2)
-        val cachedResult = cached[low, high]
+        if (t1 == t2) {
+            return 0
+        }
+        val cachedResult = cached[t1, t2]
         if (cachedResult != null) {
             return cachedResult
         }
         val result = action()
-        cached[low, high] = result
+        cached[t1, t2] = result
         return result
     }
 
@@ -46,10 +47,18 @@ class Differ(val cached: MutableMap2d<Int, Int, Int>) {
         return memoized(t1.ordinal, t2.ordinal) {
             val (t1Left, t1MinusLeft) = deleteLeft(t1)
             val (t2Left, t2MinusLeft) = deleteLeft(t2)
-            val delete = d(t1MinusLeft, t2) + deleteCost
-            val insert = d(t1, t2MinusLeft) + insertCost
             val rename = d(t1MinusLeft, t2MinusLeft) + cr(t1Left, t2Left)
-            min(min(delete, insert), rename)
+            if (rename == 0) {
+                0
+            } else {
+                val delete = d(t1MinusLeft, t2) + deleteCost
+                if (delete == 0) {
+                    0
+                } else {
+                    val insert = d(t1, t2MinusLeft) + insertCost
+                    min(min(delete, insert), rename)
+                }
+            }
         }
     }
 
@@ -117,5 +126,5 @@ class Differ(val cached: MutableMap2d<Int, Int, Int>) {
 }
 
 fun distance(t1: OrdinalNode, t2: OrdinalNode): Int {
-    return Differ(mutableMap2dOf()).d(t1, t2)
+    return Differ(mutableTriangleOf()).d(t1, t2)
 }

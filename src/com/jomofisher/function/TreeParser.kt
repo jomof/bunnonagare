@@ -1,4 +1,6 @@
-package com.jomofisher
+package com.jomofisher.function
+
+import com.jomofisher.collections.*
 
 class TreeParser(private val lines: List<String>) {
     private var line: Int = 0
@@ -17,8 +19,8 @@ class TreeParser(private val lines: List<String>) {
         }
         if (prefix.endsWith(")") && prefix.contains("(")) {
             // Treat the last bit as lispy
-            val (name, lispyChildren) = parseLispy(prefix)
-            return createNode(name, lispyChildren + children.reversed())
+            val (lispyName, lispyChildren) = parseLispy(prefix)
+            return createNode(lispyName, lispyChildren + children.reversed())
         }
         return createNode(prefix, children.reversed())
     }

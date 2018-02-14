@@ -2,15 +2,19 @@
   <dictionary name="jomof">
     <words>
       <w>bunnonagare</w>
+      <w>iverb</w>
       <w>jomof</w>
       <w>kani</w>
       <w>kanji</w>
       <w>lispy</w>
+      <w>memoized</w>
       <w>oishi</w>
       <w>parameterless</w>
       <w>parm</w>
       <w>parms</w>
+      <w>postpend</w>
       <w>prenominal</w>
+      <w>repro</w>
       <w>slist</w>
       <w>unifications</w>
       <w>wani</w>

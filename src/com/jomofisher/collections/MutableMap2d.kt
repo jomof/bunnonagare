@@ -1,4 +1,4 @@
-package com.jomofisher
+package com.jomofisher.collections
 
 class MutableMap2d<K1, K2, V>(
         val map: MutableMap<K1, MutableMap<K2, V>> = mutableMapOf()) {

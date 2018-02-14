@@ -1,6 +1,7 @@
 package com.jomofisher
 
 import com.google.common.truth.Truth.assertThat
+import com.jomofisher.collections.*
 import org.junit.Test
 
 internal class SListTest {

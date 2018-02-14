@@ -1,5 +1,8 @@
 package com.jomofisher
 
+import com.jomofisher.collections.*
+import com.jomofisher.function.*
+import com.jomofisher.function.Function
 import java.io.File
 
 class Dialogs(var dialogs: SList<Function>?)
@@ -7,18 +10,18 @@ class Dialogs(var dialogs: SList<Function>?)
 fun Dialogs.allSentences(): SList<Function>? {
     return dialogs
             .map {
-                var (_, parms) = it
+                val (_, parms) = it
                 parms.keepName("line")
             }
             .flatten()
             .map {
-                var (_, parms) = it
+                val (_, parms) = it
                 Function("sentence", parms.drop(1))
             }
 }
 
 fun createDialogFromFolder(folder: File): Dialogs {
-    var result = folder
+    val result = folder
             .walkTopDown()
             .filter {
                 it.isFile

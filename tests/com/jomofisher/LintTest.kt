@@ -1,6 +1,11 @@
 package com.jomofisher
 
 import com.google.common.truth.Truth.assertThat
+import com.jomofisher.collections.*
+import com.jomofisher.function.Function
+import com.jomofisher.function.Node
+import com.jomofisher.function.component1
+import com.jomofisher.function.component2
 import org.junit.Test
 
 class LintTest {

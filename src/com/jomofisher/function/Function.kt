@@ -1,5 +1,6 @@
-package com.jomofisher
+package com.jomofisher.function
 
+import com.jomofisher.collections.*
 import java.io.File
 
 open class Node
@@ -12,6 +13,13 @@ class Label(val label: String) : Node() {
     override fun hashCode(): Int {
         return label.hashCode()
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is Label) {
+            return label == other.label
+        }
+        return false
+    }
 }
 
 class Function(val name: String, val parms: SList<Node>?) : Node() {
@@ -19,6 +27,7 @@ class Function(val name: String, val parms: SList<Node>?) : Node() {
     init {
         if (parms.isEmpty()) throw RuntimeException("should be label")
     }
+
     override fun toString(): String {
         val builder = StringBuilder()
         builder.append(name)
@@ -144,4 +153,10 @@ fun <T : Node> SList<T>?.toNames(): SList<String>? {
         val (name, _) = it
         name
     }
+}
+
+fun SList<Function>?.toOrdinal(index: FragmentIndexBuilder)
+        : SList<OrdinalFunction>? {
+    return index.rewriteToOrdinals(this)
+
 }

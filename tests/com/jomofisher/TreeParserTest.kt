@@ -1,6 +1,10 @@
 package com.jomofisher
 
 import com.google.common.truth.Truth.assertThat
+import com.jomofisher.collections.forEach
+import com.jomofisher.function.TreeParser
+import com.jomofisher.function.invert
+import com.jomofisher.function.parseLispy
 import org.junit.Test
 
 internal class TreeParserTest {
