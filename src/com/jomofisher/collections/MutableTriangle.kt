@@ -1,20 +1,32 @@
 package com.jomofisher.collections
 
-class MutableTriangle<in K : Comparable<K>, V>(
-        private val data: MutableMap2d<K, K, V>) {
-    operator fun set(k1: K, k2: K, v: V) {
-        val low = if (k1 < k2) k1 else k2
-        val high = if (k1 < k2) k2 else k1
+class MutableTriangle<V>(
+        private val data: MutableMap2d<Int, Int, V>) {
+    private var max: Int = 0
+
+    private fun sort(k1: Int, k2: Int): Pair<Int, Int> {
+        return if (k1 <= k2) {
+            val currentMax = max
+            if (k2 > currentMax) {
+                max = k2
+            }
+            Pair(k1, k2)
+        } else {
+            sort(k2, k1)
+        }
+    }
+
+    operator fun set(k1: Int, k2: Int, v: V) {
+        val (low, high) = sort(k1, k2)
         data[low, high] = v
     }
 
-    operator fun get(k1: K, k2: K): V? {
-        val low = if (k1 < k2) k1 else k2
-        val high = if (k1 < k2) k2 else k1
+    operator fun get(k1: Int, k2: Int): V? {
+        val (low, high) = sort(k1, k2)
         return data[low, high]
     }
 }
 
-fun <K : Comparable<K>, V> mutableTriangleOf(): MutableTriangle<K, V> {
+fun <V> mutableTriangleOf(): MutableTriangle<V> {
     return MutableTriangle(mutableMap2dOf())
 }

@@ -1,8 +1,10 @@
 phrase
  wa
+  sore
  ni
  wo
  ga
+particle(は, の)
 verb
  past
   positive
@@ -30,7 +32,7 @@ adjective
 adverb
 stem
  verb
-  i-form(買い, ござい, すみ, いき, かえり, し, 見, いらっしゃい, き, 食べ)
+  i-form(買い, ござい, すみ, いき, かえり, し, 見, いらっしゃい, き, 食べ, あり)
 suffix
  verb
   i-form(ます, ました, ません)

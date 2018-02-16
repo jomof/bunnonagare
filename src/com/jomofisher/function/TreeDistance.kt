@@ -5,7 +5,7 @@ import kotlin.math.min
 
 class Empty : OrdinalNode(-1)
 
-class Differ(private val cached: MutableTriangle<Int, Int>) {
+class Differ(private val cached: MutableTriangle<Int>) {
     private val deleteCost = 1
     private val insertCost = 1
     private val renameCost = 1

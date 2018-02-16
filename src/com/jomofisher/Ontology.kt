@@ -11,13 +11,13 @@ class Ontology(val forward: SList<Node>?) {
     //val backward = forward.invert()
 }
 
-private fun allLeafs(node: Node): SList<String>? {
+private fun allLeafsOf(node: Node): SList<String>? {
     return when (node) {
         is Label -> slistOf(node.label)
         is Function ->
             node
                     .parms
-                    .map { allLeafs(it) }
+                    .map { allLeafsOf(it) }
                     .flatten()
         else -> throw RuntimeException("$node")
     }
@@ -28,7 +28,7 @@ private fun leafsUnder(node: Node, name: String): SList<String>? {
         is Label -> slistOf()
         is Function ->
             if (node.name == name) {
-                allLeafs(node)
+                allLeafsOf(node)
             } else {
                 node
                         .parms

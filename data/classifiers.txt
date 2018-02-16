@@ -1,0 +1,7 @@
+match(sore-wa-phrase, (それ, は))
+match(wa-phrase, (*, は))
+match(ka-phrase, (*, か))
+match(ni-phrase, (*, に))
+match(mashta-verb, (*, ました))
+match(no-adj, (*, の))
+match(na-adj, (*, な))

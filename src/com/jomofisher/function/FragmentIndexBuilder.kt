@@ -39,7 +39,8 @@ fun FragmentIndexBuilder.appendFile(file: File): FragmentIndexBuilder {
     return this
 }
 
-fun <T : Node> FragmentIndexBuilder.appendTopLevel(functions: SList<T>?): FragmentIndexBuilder {
+fun <T : Node> FragmentIndexBuilder.appendTopLevel(
+        functions: SList<T>?): FragmentIndexBuilder {
     functions.forEach {
         createLookupIfNotPresent(it)
     }
@@ -94,4 +95,12 @@ fun FragmentIndexBuilder.copy(): FragmentIndexBuilder {
             HashMap(map).toMutableMap(),
             HashMap(table).toMutableMap(),
             nextLookupValue)
+}
+
+fun readSentenceIndex(file: File): FragmentIndexBuilder {
+    return FragmentIndexBuilder().appendFile(file)
+}
+
+fun FragmentIndexBuilder.writeSentenceIndex(file: File) {
+    toIndexFunctions().writeToFile(file)
 }

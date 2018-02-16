@@ -4,14 +4,9 @@ import com.jomofisher.collections.*
 import com.jomofisher.function.*
 import com.jomofisher.function.Function
 import org.junit.Test
-import kotlin.math.max
-import kotlin.math.min
 
 class ProcessingTest {
-    private fun getJapaneseOnly(sentences: SList<Function>?): SList<Function>? {
-        return sentences
-                .map { Function("", it.parms.drop(1)) }
-    }
+
 
     @Test
     fun recreate() {
@@ -19,73 +14,83 @@ class ProcessingTest {
         val dialogSentences = createDialogFromFolder(dialogFolder)
                 .allSentences()
         val sentences = grammarSentences + dialogSentences
-        val japaneseOnly = getJapaneseOnly(sentences)
-        val sentenceIndex = FragmentIndexBuilder()
-                .appendFile(indexedFragmentsFile)
+        val japaneseOnly = classify(getJapaneseOnly(sentences))
+
+        val sentenceIndex = readSentenceIndex(indexedFragmentsFile)
                 .appendTopLevel(japaneseOnly)
         val deepSentenceIndex = sentenceIndex.copy()
-        val ordinalSentences = japaneseOnly
-                .toOrdinal(deepSentenceIndex)
-                .toTypedArray()
-        val originalDistanceTriangle =
-                readFunctionTriples(sentenceDistancesFile, "distance")
-                        .map {
-                            val (name, _) = it
-                            name.toInt()
-                        }
-        val distanceTriangle =
-                originalDistanceTriangle.extendToSize(ordinalSentences.size) { i, j ->
-                    println("calculating distance $i, $j")
-                    distance(ordinalSentences[i], ordinalSentences[j])
-                }.memoize()
+        val ordinalSentences = japaneseOnly.toOrdinal(deepSentenceIndex)
+        val distanceTriangle = readDistances(sentenceDistancesFile)
+                .fillInNewDistances(ordinalSentences)
 
-        val distanceTriangleFunctions = distanceTriangle
-                .flattenIndexed { i, j, distance ->
-                    Function("distance",
-                            slistOf(
-                                    Label(i.toString()),
-                                    Label(j.toString()),
-                                    Label(distance.toString())))
-                }
+        sentenceIndex.writeSentenceIndex(indexedFragmentsFile)
+        distanceTriangle.writeDistances(sentenceDistancesFile)
 
-        sentenceIndex.toIndexFunctions().writeToFile(indexedFragmentsFile)
-        distanceTriangleFunctions.writeToFile(sentenceDistancesFile)
-
-        val edges = calculateLearningGraph(distanceTriangle)
+        val edges = distanceTriangle.fairDjikstra()
         println(edges.toStringMapped {
             if (it == 1) "*" else " "
         })
     }
 
-    private fun calculateLearningGraph(distances: Triangle<Int>): Triangle<Int> {
-        val edges = mutableMap2dOf<Int, Int, Int>()
-        val graph = Triangle(distances.size, { i, j -> edges[i, j] ?: 0 })
-        val visited = mutableSetOf(0)
-
-        while (visited.size < distances.size) {
-            var lowestCostSoFar = Int.MAX_VALUE
-            var bestCandidates = slistOf<Pair<Int, Int>>()
-            for (v in visited) {
-                for (other in (0 until distances.size)) {
-                    if (visited.contains(other)) {
-                        continue
-                    }
-                    val distance = distances[v, other]
-                    if (distance < lowestCostSoFar) {
-                        bestCandidates = SList(Pair(v, other))
-                        lowestCostSoFar = distance
-                    } else if (distance == lowestCostSoFar) {
-                        // Record all edges that match the lowest cost
-                        bestCandidates = bestCandidates.push(Pair(v, other))
-                    }
-                }
-            }
-
-            bestCandidates.forEach { (from, to) ->
-                edges[max(from, to), min(from, to)] = 1
-                visited.add(to)
-            }
+    private fun classify(classifier: Node, sentenceFragment: Node): Node {
+        val (_, classifierParms) = classifier
+        val (productionNode, classifierNode) = classifierParms
+        val (production, _) = productionNode
+        val (name, sentenceParms) = sentenceFragment
+        val classifiedFunctionParms =
+                sentenceParms.map { classify(classifier, it) }
+        if (unifies(classifierNode, sentenceFragment)) {
+            return createNode(production, classifiedFunctionParms)
         }
-        return graph
+        return createNode(name, classifiedFunctionParms)
     }
+
+    private fun unifies(classifierNode: Node, sentenceFragment: Node): Boolean {
+        val (classifierName, classifierParms) = classifierNode
+        if (classifierName == "*") {
+            return true
+        }
+        val (sentenceFragmentName, sentenceFragmentParms) = sentenceFragment
+        if (classifierName != sentenceFragmentName) {
+            return false
+        }
+        if (classifierParms.size() != sentenceFragmentParms.size()) {
+            return false
+        }
+        return unifies(classifierParms, sentenceFragmentParms)
+    }
+
+    private fun unifies(
+            classifierParms: SList<Node>?,
+            sentenceFragmentParms: SList<Node>?): Boolean {
+        if (classifierParms == null && sentenceFragmentParms == null) {
+            return true
+        }
+        if (classifierParms == null || sentenceFragmentParms == null) {
+            return false
+        }
+        if (!unifies(classifierParms.head(), sentenceFragmentParms.head())) {
+            return false
+        }
+        return unifies(classifierParms.drop(1), sentenceFragmentParms.drop(1))
+    }
+
+    private fun classify(classifiers: SList<Node>?, function: Node): Node {
+        var result = function
+        classifiers
+                .keepName("match")
+                .forEach {
+                    result = classify(it, result)
+        }
+        return result
+    }
+
+    private fun classify(sentences: SList<Function>?): SList<Function>? {
+        val classifiers = parseLispy(classifiersFile)
+        return sentences
+                .map { classify(classifiers, it) }
+                .filterIsInstance()
+    }
+
+
 }

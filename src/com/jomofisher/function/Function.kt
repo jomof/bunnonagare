@@ -156,7 +156,6 @@ fun <T : Node> SList<T>?.toNames(): SList<String>? {
 }
 
 fun SList<Function>?.toOrdinal(index: FragmentIndexBuilder)
-        : SList<OrdinalFunction>? {
-    return index.rewriteToOrdinals(this)
-
+        : Array<OrdinalFunction> {
+    return index.rewriteToOrdinals(this).toTypedArray()
 }
