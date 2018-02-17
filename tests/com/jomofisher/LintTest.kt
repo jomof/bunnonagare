@@ -47,13 +47,48 @@ class LintTest {
     }
 
     @Test
+    fun parenCountsMustMatch() {
+        sentencesFile.readLines()
+                .forEach {
+                    val left = it.filter { it == '(' }.count()
+                    val right = it.filter { it == ')' }.count()
+                    assertThat(left).named(it).isEqualTo(right)
+                }
+    }
+
+    @Test
+    fun quotesMustBeEven() {
+        sentencesFile.readLines()
+                .forEach {
+                    val left = it.filter { it == '\"' }.count()
+                    assertThat(left % 2).named(it).isEqualTo(0)
+                }
+    }
+
+    @Test
     fun stuffThatCantEndAThing() {
-        val stuff = arrayOf("ます", "ました", "ません", "さん", "たち")
+        val stuff = arrayOf("ます", "ました", "ません", "さん", "たち", "でした")
         lintSentences(readSentencesFromEveryWhere()) { node, _, _ ->
             val (name, _) = node
             stuff.forEach {
                 if (name != it && name.endsWith(it)) {
                     throw RuntimeException("$name can't end with $it. It should be broken up.")
+                }
+            }
+        }
+    }
+
+    @Test
+    fun stuffThatCantStartAThing() {
+        val stuff = arrayOf("お")
+        lintSentences(readSentencesFromEveryWhere()) { node, _, _ ->
+            val (name, _) = node
+            stuff.forEach {
+                if (name != it && name.startsWith(it)) {
+                    if (!name.startsWith("おお")
+                            && !name.startsWith("おも")) {
+                        throw RuntimeException("$name can't start with $it. It should be broken up.")
+                    }
                 }
             }
         }

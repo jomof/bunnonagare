@@ -1,0 +1,8 @@
+setting("Saki and Spiteful meet each other for the first time while waiting in line for ramen.")
+
+line(Spiteful,　"Nice to meet you!", はじめ, まして)
+line(Spiteful,　"My name is Spiteful.", スパイトフル,です)
+line(Spiteful,　"It's nice to meet you", よろしく, ((お, ねいがい), (し, ます)))
+line(さき, "Nice to meet you!", はじめ, まして)
+line(さき, "My name is Saki.", さき, です)
+line(さき, "It's nice to meet you", どうぞ, よろしく)

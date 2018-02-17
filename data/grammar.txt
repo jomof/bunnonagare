@@ -11,7 +11,7 @@ sentence("This pen is blue", ((((こ, の), ペン), は), 青い), です)
 sentence("I was not good at golf", ((私,は), (ゴルフ,が), 下手), でした)
 sentence("We had a meal at a famous restaurant", ((((私, たち), は), (((有名, な), レストラン), で), (食事, を))), (し, ました))
 sentence("Chicken is cheap", (((とり, にく), は), やすい), です)
-sentence("We had a meal at a clean restaurant", ((((((私,たち), は), (きれい, な)),　(レストラン, で)), (食事, を)), (し, ました))
+sentence("We had a meal at a clean restaurant", ((((((私,たち), は), (きれい, な)),　(レストラン, で)), (食事, を)), (し, ました)))
 sentence("This flower is beautiful", ((((こ, の), 花), は), きれい), です)
 
 

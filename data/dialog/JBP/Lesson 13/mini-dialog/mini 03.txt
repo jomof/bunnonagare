@@ -1,2 +1,2 @@
-line(A, "What kind of cake did you eat?", (((どんな, お菓子), を), (食べ, ました)), か)
+line(A, "What kind of cake did you eat?", (((どんな, (お, 菓子)), を), (食べ, ました)), か)
 line(B, "I ate cookies", (クツキー, を), (食べ, ました))
