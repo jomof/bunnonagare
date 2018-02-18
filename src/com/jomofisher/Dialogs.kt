@@ -1,22 +1,21 @@
 package com.jomofisher
 
 import com.jomofisher.collections.*
-import com.jomofisher.function.*
 import com.jomofisher.function.Function
+import com.jomofisher.function.keepName
+import com.jomofisher.function.parseLispy
 import java.io.File
 
-class Dialogs(var dialogs: SList<Function>?)
+class Dialogs(var dialogs: SList<Function>)
 
-fun Dialogs.allSentences(): SList<Function>? {
+fun Dialogs.allSentences(): SList<Function> {
     return dialogs
             .map {
-                val (_, parms) = it
-                parms.keepName("line")
+                it.parms.keepName("line").notEmpty().mapAs<Function>()
             }
             .flatten()
             .map {
-                val (_, parms) = it
-                Function("sentence", parms.drop(1))
+                Function("sentence", it.parms.next.notEmpty())
             }
 }
 
@@ -27,10 +26,11 @@ fun createDialogFromFolder(folder: File): Dialogs {
                 it.isFile
             }
             .map {
-                Function("dialog", parseLispy(it))
+                Function("dialog", parseLispy(it).notEmpty())
             }
             .toList()
             .toSList()
+            .notEmpty()
     return Dialogs(result)
 }
 

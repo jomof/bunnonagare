@@ -32,7 +32,7 @@ internal class SListTest {
 
     @Test
     fun plusList() {
-        val list = slistOf("a", "b", "c") + slistOf("d", "e")
+        val list = slistOf("a", "b", "c") concat slistOf("d", "e")
         assertThat(list.toString()).isEqualTo("[a, b, c, d, e]")
     }
 

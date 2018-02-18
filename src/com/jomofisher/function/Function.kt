@@ -22,20 +22,14 @@ class Label(val label: String) : Node() {
     }
 }
 
-class Function(val name: String, val parms: SList<Node>?) : Node() {
-
-    init {
-        if (parms.isEmpty()) throw RuntimeException("should be label")
-    }
+class Function(val name: String, val parms: SList<Node>) : Node() {
 
     override fun toString(): String {
         val builder = StringBuilder()
         builder.append(name)
-        if (!parms.isEmpty()) {
-            builder.append("(")
-            builder.append(parms.joinToString(","))
-            builder.append(")")
-        }
+        builder.append("(")
+        builder.append(parms.joinToString(","))
+        builder.append(")")
         return builder.toString()
     }
 
@@ -67,19 +61,13 @@ class OrdinalLabel(ordinal: Int) : OrdinalNode(ordinal) {
     }
 }
 
-class OrdinalFunction(ordinal: Int, val parms: SList<OrdinalNode>?) : OrdinalNode(ordinal) {
-    init {
-        if (parms.isEmpty()) throw RuntimeException("should be label")
-    }
-
+class OrdinalFunction(ordinal: Int, val parms: SList<OrdinalNode>) : OrdinalNode(ordinal) {
     override fun toString(): String {
         val builder = StringBuilder()
         builder.append(ordinal)
-        if (!parms.isEmpty()) {
-            builder.append("(")
-            builder.append(parms.joinToString(","))
-            builder.append(")")
-        }
+        builder.append("(")
+        builder.append(parms.joinToString(","))
+        builder.append(")")
         return builder.toString()
     }
 
@@ -95,15 +83,15 @@ class OrdinalFunction(ordinal: Int, val parms: SList<OrdinalNode>?) : OrdinalNod
     }
 }
 
-fun createNode(name: String, children: SList<Node>?): Node {
-    if (children.isEmpty()) {
+fun createNode(name: String, children: SList<Node>? = null): Node {
+    if (children == null) {
         return Label(name)
     }
     return Function(name, children)
 }
 
 fun createNode(ordinal: Int, children: SList<OrdinalNode>?): OrdinalNode {
-    if (children.isEmpty()) {
+    if (children == null) {
         return OrdinalLabel(ordinal)
     }
     return OrdinalFunction(ordinal, children)
@@ -131,7 +119,7 @@ fun Node.invert(parent: SList<Node>? = null): SList<Node>? {
 }
 
 fun SList<Node>?.invert(parent: SList<Node>? = null): SList<Node>? {
-    return map { it.invert(parent) }.flatten()
+    return mapEmpty { it.invert(parent) }.flattenEmpty()
 }
 
 fun <T : Node> SList<T>?.keepName(match: String): SList<T>? {
@@ -148,7 +136,7 @@ fun <T : Node> SList<T>?.writeToFile(file: File) {
     }
 }
 
-fun <T : Node> SList<T>?.toNames(): SList<String>? {
+fun <T : Node> SList<T>.toNames(): SList<String> {
     return map {
         val (name, _) = it
         name
@@ -159,3 +147,46 @@ fun SList<Function>?.toOrdinal(index: FragmentIndexBuilder)
         : Array<OrdinalFunction> {
     return index.rewriteToOrdinals(this).toTypedArray()
 }
+
+fun <T : Node> SList<T>?.toLabel(): SList<Label>? {
+    return mapEmpty {
+        when (it) {
+            is Label -> it
+            else -> throw RuntimeException("expected labels")
+        }
+    }
+}
+
+fun <T : Node> SList<T>?.toNameText(): SList<String>? {
+    return toLabel().mapEmpty {
+        it.label
+    }
+}
+
+fun Array<Function>.indexByParameter(parameter: Int): Map<String, Set<Int>> {
+    val result: MutableMap<String, MutableSet<Int>> = mutableMapOf()
+    mapIndexed { i, f ->
+        val param = f.parms[parameter]
+        when (param) {
+            is Label -> result.upsert(param.label, i)
+            is Function ->
+                param.parms.forEach {
+                    if (it !is Label) {
+                        throw RuntimeException("unexpected")
+                    }
+                    result.upsert(it.label, i)
+                }
+        }
+    }
+    return result
+}
+
+//fun <T : Node> SList<T>?
+//
+//fun Node.rewriteBottomUp(action : (Node) -> Node) : Node {
+//    when(this) {
+//        is Function -> {
+//            val parms = this.parms.rewriteBottomUp()
+//        }
+//    }
+//}

@@ -27,5 +27,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" scope="TEST" name="com.google.truth:truth:0.39" level="project" />
+    <orderEntry type="library" name="com.github.caseyscarborough:wanikani-api:v0.1" level="project" />
   </component>
 </module>

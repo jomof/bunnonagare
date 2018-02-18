@@ -6,10 +6,6 @@ class SList<T>(val value: T, val next: SList<T>? = null) {
     }
 }
 
-fun <T> SList<T>?.isEmpty(): Boolean {
-    return this == null
-}
-
 fun <T> SList<T>?.forEach(action: (T) -> Unit) {
     if (this == null) {
         return
@@ -39,14 +35,6 @@ fun <T> SList<T>?.joinToString(delimiter: String): String {
     return sb.toString()
 }
 
-fun <T> slistOf(): SList<T>? {
-    return null
-}
-
-fun <T> slistOf(value: T): SList<T>? {
-    return SList(value)
-}
-
 fun <T> SList<T>?.slowlyPostpend(add: T): SList<T>? {
     if (this == null) {
         return SList(add)
@@ -54,7 +42,7 @@ fun <T> SList<T>?.slowlyPostpend(add: T): SList<T>? {
     return SList(value, next.slowlyPostpend(add))
 }
 
-fun <T> SList<T>?.reversed(): SList<T>? {
+fun <T> SList<T>?.reversedEmpty(): SList<T>? {
     var result = slistOf<T>()
     forEach {
         result = result.push(it)
@@ -62,27 +50,47 @@ fun <T> SList<T>?.reversed(): SList<T>? {
     return result
 }
 
+fun <T> SList<T>.reversed(): SList<T> {
+    return reversedEmpty()!!
+}
+
 fun <T> SList<T>?.push(value: T): SList<T>? {
     return SList(value, this)
 }
 
-operator fun <T> SList<T>?.plus(value: SList<T>?): SList<T>? {
+infix fun <T> SList<T>.concat(value: SList<T>?): SList<T> {
     var result = value
-    reversed().forEach {
+    reversedEmpty().forEach {
+        result = result.push(it)
+    }
+    return result.notEmpty()
+}
+
+fun <T> SList<T>?.concatEmpty(value: SList<T>?): SList<T>? {
+    var result = value
+    reversedEmpty().forEach {
         result = result.push(it)
     }
     return result
 }
 
-fun <T> slistOf(vararg values: T): SList<T>? {
-    var last = slistOf<T>()
-    values.toList().reversed().forEach {
-        last = SList(it, last)
-    }
-    return last
+fun <T> SList<T>?.notEmpty(): SList<T> {
+    return this!!
 }
 
-fun <T1, T2> SList<T1>?.mapReversed(action: (T1) -> T2): SList<T2>? {
+fun <T> slistOf(): SList<T>? {
+    return null
+}
+
+fun <T> slistOf(first: T, vararg values: T): SList<T> {
+    var last = SList(first)
+    values.toList().forEach {
+        last = SList(it, last)
+    }
+    return last.reversed()
+}
+
+fun <T1, T2> SList<T1>?.mapEmptyReversed(action: (T1) -> T2): SList<T2>? {
     var result = slistOf<T2>()
     var current = this
     while (current != null) {
@@ -92,29 +100,69 @@ fun <T1, T2> SList<T1>?.mapReversed(action: (T1) -> T2): SList<T2>? {
     return result
 }
 
-fun <T1, T2> SList<T1>?.map(action: (T1) -> T2): SList<T2>? {
-    return mapReversed(action).reversed()
+fun <T1, T2> SList<T1>?.mapEmpty(action: (T1) -> T2): SList<T2>? {
+    return mapEmptyReversed(action).reversedEmpty()
 }
 
-fun <T> SList<SList<T>?>?.flatten(): SList<T>? {
+fun <T1, T2> SList<T1>.mapReversed(action: (T1) -> T2): SList<T2> {
+    return this.mapEmptyReversed(action)!!
+}
+
+fun <T1, T2> SList<T1>.map(action: (T1) -> T2): SList<T2> {
+    return this.mapEmpty(action)!!
+}
+
+fun <T1, T2> SList<T1>?.mapIndexedReversed(action: (Int, T1) -> T2): SList<T2>? {
+    var result = slistOf<T2>()
+    var current = this
+    var n = 0
+    while (current != null) {
+        result = result.push(action(n, current.value))
+        ++current
+        ++n
+    }
+    return result
+}
+
+fun <T1, T2> SList<T1>?.mapIndexed(action: (Int, T1) -> T2): SList<T2>? {
+    return mapIndexedReversed(action).reversedEmpty()
+}
+
+fun <T> SList<SList<T>?>?.flattenEmpty(): SList<T>? {
     var result = slistOf<T>()
     forEach { outer ->
         outer.forEach { inner ->
             result = result.push(inner)
         }
     }
-    return result.reversed()
+    return result.reversedEmpty()
+}
+
+fun <T> SList<SList<T>>.flatten(): SList<T> {
+    var result = slistOf<T>()
+    forEach { outer ->
+        outer.forEach { inner ->
+            result = result.push(inner)
+        }
+    }
+    return result!!.reversed()
 }
 
 fun <T> SList<T>?.head(): T {
     return this!!.value
 }
 
-fun <T> SList<T>?.drop(n: Int): SList<T>? {
+fun <T> SList<T>.drop(n: Int): SList<T>? {
     if (n == 0) {
         return this
     }
-    return this!!.next.drop(n - 1)
+    if (this.next == null) {
+        if (n == 1) {
+            return this.next
+        }
+        throw RuntimeException("not enough elements to drop, ${n - 1} more needed")
+    }
+    return this.next.drop(n - 1)
 }
 
 operator fun <T> SList<T>?.inc(): SList<T>? {
@@ -143,18 +191,25 @@ fun <T> Iterable<T>.toSList(): SList<T>? {
     return reversed().toSListReversed()
 }
 
-inline fun <reified T> SList<*>?.filterIsInstanceReversed(): SList<T>? {
-    var result = slistOf<T>()
-    forEach {
-        when (it) {
-            is T -> result = result.push(it)
+inline fun <reified T> SList<*>?.mapAsReversedEmpty(): SList<T>? {
+    return mapEmpty {
+        if (it !is T) {
+            throw RuntimeException("$it was not the expected type")
         }
+        it as T
     }
-    return result
 }
 
-inline fun <reified T> SList<*>?.filterIsInstance(): SList<T>? {
-    return filterIsInstanceReversed<T>().reversed()
+inline fun <reified T> SList<*>?.mapAsEmpty(): SList<T>? {
+    return mapAsReversedEmpty<T>().reversedEmpty()
+}
+
+inline fun <reified T> SList<*>.mapAsReversed(): SList<T> {
+    return this.mapAsReversedEmpty()!!
+}
+
+inline fun <reified T> SList<*>.mapAs(): SList<T> {
+    return this.mapAsEmpty()!!
 }
 
 fun <T> SList<T>?.filterReversed(predicate: (T) -> Boolean): SList<T>? {
@@ -168,7 +223,7 @@ fun <T> SList<T>?.filterReversed(predicate: (T) -> Boolean): SList<T>? {
 }
 
 fun <T> SList<T>?.filter(predicate: (T) -> Boolean): SList<T>? {
-    return filterReversed(predicate).reversed()
+    return filterReversed(predicate).reversedEmpty()
 }
 
 fun <T> SList<T>?.toList(): List<T> {

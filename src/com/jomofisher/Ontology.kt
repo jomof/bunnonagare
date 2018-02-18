@@ -7,7 +7,7 @@ import com.jomofisher.function.Node
 import com.jomofisher.function.TreeParser
 import java.io.File
 
-class Ontology(val forward: SList<Node>?) {
+class Ontology(val forward: SList<Node>) {
     //val backward = forward.invert()
 }
 
@@ -18,7 +18,7 @@ private fun allLeafsOf(node: Node): SList<String>? {
             node
                     .parms
                     .map { allLeafsOf(it) }
-                    .flatten()
+                    .flattenEmpty()
         else -> throw RuntimeException("$node")
     }
 }
@@ -33,7 +33,7 @@ private fun leafsUnder(node: Node, name: String): SList<String>? {
                 node
                         .parms
                         .map { leafsUnder(it, name) }
-                        .flatten()
+                        .flattenEmpty()
             }
         else -> throw RuntimeException("$node")
     }
@@ -43,13 +43,13 @@ fun Ontology.leafsUnder(name: String): Set<String> {
     val result = mutableSetOf<String>()
     result.addAll(forward
             .map { leafsUnder(it, name) }
-            .flatten()
+            .flattenEmpty()
             .toList())
     return result
 }
 
 fun createOntologyFromFile(file: File): Ontology {
     val lines = file.readLines()
-    return Ontology(TreeParser(lines).parse())
+    return Ontology(TreeParser(lines).parse()!!)
 }
 

@@ -7,13 +7,12 @@ import org.junit.Test
 
 class ProcessingTest {
 
-
     @Test
     fun recreate() {
         val grammarSentences = readSentences(sentencesFile)
         val dialogSentences = createDialogFromFolder(dialogFolder)
                 .allSentences()
-        val sentences = grammarSentences + dialogSentences
+        val sentences = grammarSentences concat dialogSentences
         val japaneseOnly = classify(getJapaneseOnly(sentences))
 
         val sentenceIndex = readSentenceIndex(indexedFragmentsFile)
@@ -28,7 +27,12 @@ class ProcessingTest {
 
         val edges = distanceTriangle.fairDjikstra()
         println(edges.toStringMapped {
-            if (it == 1) "*" else " "
+            when (it) {
+                0 -> " "
+                1, 2 -> "."
+                3, 4, 5, 6, 7 -> it.toString()
+                else -> "*"
+            }
         })
     }
 
@@ -38,7 +42,7 @@ class ProcessingTest {
         val (production, _) = productionNode
         val (name, sentenceParms) = sentenceFragment
         val classifiedFunctionParms =
-                sentenceParms.map { classify(classifier, it) }
+                sentenceParms.mapEmpty { classify(classifier, it) }
         if (unifies(classifierNode, sentenceFragment)) {
             return createNode(production, classifiedFunctionParms)
         }
@@ -85,11 +89,11 @@ class ProcessingTest {
         return result
     }
 
-    private fun classify(sentences: SList<Function>?): SList<Function>? {
+    private fun classify(sentences: SList<Function>): SList<Function> {
         val classifiers = parseLispy(classifiersFile)
         return sentences
                 .map { classify(classifiers, it) }
-                .filterIsInstance()
+                .mapAs()
     }
 
 

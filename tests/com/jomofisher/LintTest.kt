@@ -15,8 +15,7 @@ class LintTest {
             check: (Node, Int, Int) -> Unit) {
         sentences.forEach {
             try {
-                val (_, parms) = it
-                lintFragment(Function("", parms.drop(1)), check)
+                lintFragment(Function("", it.parms.drop(1).notEmpty()), check)
             } catch (e: RuntimeException) {
                 if (e is KotlinNullPointerException) {
                     throw e
@@ -43,7 +42,7 @@ class LintTest {
         val grammarSentences = readSentences(sentencesFile)
         val dialogSentences = createDialogFromFolder(dialogFolder)
                 .allSentences()
-        return grammarSentences + dialogSentences
+        return grammarSentences concat dialogSentences
     }
 
     @Test

@@ -20,9 +20,9 @@ class TreeParser(private val lines: List<String>) {
         if (prefix.endsWith(")") && prefix.contains("(")) {
             // Treat the last bit as lispy
             val (lispyName, lispyChildren) = parseLispy(prefix)
-            return createNode(lispyName, lispyChildren + children.reversed())
+            return createNode(lispyName, lispyChildren.concatEmpty(children.reversedEmpty()))
         }
-        return createNode(prefix, children.reversed())
+        return createNode(prefix, children.reversedEmpty())
     }
 
     fun parse(): SList<Node>? {
@@ -30,6 +30,6 @@ class TreeParser(private val lines: List<String>) {
         while (line < lines.size) {
             result = result.push(parseNode(0, ""))
         }
-        return result.reversed()
+        return result.reversedEmpty()
     }
 }

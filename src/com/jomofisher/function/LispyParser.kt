@@ -35,11 +35,7 @@ private class LispyParser(
                     '(' -> {
                         pos++
                         parenDepth++
-                        val sub = parseList()
-                        if (sub.isEmpty()) {
-                            return Label(name.trim())
-                        }
-                        return Function(name.trim(), sub)
+                        return createNode(name.trim(), parseList())
                     }
                     ')' -> {
                         parenDepth--
@@ -68,14 +64,14 @@ private class LispyParser(
                 ',' -> pos++
                 ')' -> {
                     pos++
-                    return result.reversed()
+                    return result.reversedEmpty()
                 }
                 else -> {
                     result = result.push(parseNode())
                 }
             }
         }
-        return result.reversed()
+        return result.reversedEmpty()
     }
 }
 
