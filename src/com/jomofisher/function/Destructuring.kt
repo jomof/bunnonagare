@@ -2,7 +2,7 @@ package com.jomofisher.function
 
 import com.jomofisher.collections.SList
 import com.jomofisher.collections.drop
-import com.jomofisher.collections.head
+import com.jomofisher.collections.get
 import kotlin.reflect.KClass
 
 private fun unifies(
@@ -47,7 +47,7 @@ private fun unifies(
     if (patternList == null || nodeList == null) {
         return false
     }
-    if (!unifies(patternList.head(), nodeList.head(), extracted)) {
+    if (!unifies(patternList[0], nodeList[0], extracted)) {
         return false
     }
     return unifies(patternList.drop(1), nodeList.drop(1), extracted)

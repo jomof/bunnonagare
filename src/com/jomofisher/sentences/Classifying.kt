@@ -1,6 +1,9 @@
 package com.jomofisher.sentences
 
-import com.jomofisher.collections.*
+import com.jomofisher.collections.SList
+import com.jomofisher.collections.fold
+import com.jomofisher.collections.map
+import com.jomofisher.collections.mapAs
 import com.jomofisher.function.*
 import com.jomofisher.function.Function
 import java.io.File
@@ -29,51 +32,17 @@ fun Classifier.classify(node: Node): Node {
 }
 
 fun SList<Classifier>?.classify(node: Node): Node {
-    return fold(node) { node, classifier ->
-        classifier.classify(node)
+    return fold(node) { prior, classifier ->
+        classifier.classify(prior)
     }
 }
 
-fun SList<Classifier>?.classify(nodes: SList<Function>): SList<Function> {
+fun SList<Classifier>?.classify(nodes: SList<Function>?): SList<Function>? {
     return nodes.map { classify(it) }.mapAs()
 }
 
 fun readClassifierFile(file: File): SList<Classifier>? {
     return parseLispy(file)
             .keepName("match")
-            .mapEmpty { createClassifier(it) }
+            .map { createClassifier(it) }
 }
-
-//private fun classify(classifiers: SList<Node>?, function: Node): Node {
-//    var result = function
-//    classifiers
-//            .keepName("match")
-//            .forEach {
-//                result = classify(it, result)
-//            }
-//    return result
-//}
-
-//fun classifySentences(
-//        classifiersFile: File,
-//        sentences: SList<Function>): SList<Function> {
-//    val classifiers = parseLispy(classifiersFile)
-//    var sentences = sentences
-//    classifiers
-//            .keepName("match")
-//            .forEach { classifier ->
-//                val (_, classifierParms) = classifier
-//                val (productionNode, classifierNode) = classifierParms
-//                val (production, _) = productionNode
-//                sentences = sentences.map { node ->
-//                    node.rewrite {
-//                        if (unifies(classifierNode, createFunction(slistOf(it)))) {
-//                            it.annotate("classification", production)
-//                        } else {
-//                            it
-//                        }
-//                    }
-//                }.mapAs()
-//            }
-//    return sentences
-//}

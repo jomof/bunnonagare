@@ -20,7 +20,7 @@ internal class SListTest {
 
     @Test
     fun push() {
-        val list = slistOf("a", "b", "c").push("d")
+        val list = slistOf("a", "b", "c") + "d"
         assertThat(list.toString()).isEqualTo("[d, a, b, c]")
     }
 

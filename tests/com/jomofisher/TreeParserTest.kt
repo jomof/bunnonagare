@@ -73,7 +73,7 @@ internal class TreeParserTest {
 
     @Test
     fun ontology() {
-        val ontology = createOntologyFromFile(ontologyFile)
+        val ontology = readOntologyFile(ontologyFile)
         ontology
                 .forward
                 .forEach { println("$it") }

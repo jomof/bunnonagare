@@ -64,14 +64,14 @@ private class LispyParser(
                 ',' -> pos++
                 ')' -> {
                     pos++
-                    return result.reversedEmpty()
+                    return result.reversed()
                 }
                 else -> {
-                    result = result.push(parseNode())
+                    result += parseNode()
                 }
             }
         }
-        return result.reversedEmpty()
+        return result.reversed()
     }
 }
 

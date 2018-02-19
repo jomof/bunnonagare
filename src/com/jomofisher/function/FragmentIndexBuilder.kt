@@ -25,10 +25,10 @@ fun FragmentIndexBuilder.toLookupValue(value: Node): Int {
 
 fun FragmentIndexBuilder.appendFile(file: File): FragmentIndexBuilder {
     parseLispy(file)
-            .mapAsEmpty<Function>()
+            .mapAs<Function>()
             .keepName("indexedFragment")
             .forEach { it ->
-                val (index, _) = it.parms.value
+                val (index, _) = it.parms[0]
                 val lookupValue = index.toInt()
                 val tree = it.parms.drop(1)!!.value
                 assert(!map.containsKey(tree))
@@ -85,7 +85,7 @@ fun FragmentIndexBuilder.rewriteToOrdinal(node: Node): OrdinalNode {
 }
 
 fun FragmentIndexBuilder.rewriteToOrdinals(nodes: SList<Function>?): SList<OrdinalFunction>? {
-    return nodes.mapEmpty {
+    return nodes.map {
         rewriteToOrdinal(it)
     }
 }

@@ -15,21 +15,21 @@ class TreeParser(private val lines: List<String>) {
         }
         var children = slistOf<Node>()
         while (line < lines.size && lines[line].startsWith(nextPrefix)) {
-            children = children.push(parseNode(indent + 1, prefix))
+            children += parseNode(indent + 1, prefix)
         }
         if (prefix.endsWith(")") && prefix.contains("(")) {
             // Treat the last bit as lispy
             val (lispyName, lispyChildren) = parseLispy(prefix)
-            return createNode(lispyName, lispyChildren.concatEmpty(children.reversedEmpty()))
+            return createNode(lispyName, lispyChildren.concat(children.reversed()))
         }
-        return createNode(prefix, children.reversedEmpty())
+        return createNode(prefix, children.reversed())
     }
 
     fun parse(): SList<Node>? {
         var result = slistOf<Node>()
         while (line < lines.size) {
-            result = result.push(parseNode(0, ""))
+            result += parseNode(0, "")
         }
-        return result.reversedEmpty()
+        return result.reversed()
     }
 }

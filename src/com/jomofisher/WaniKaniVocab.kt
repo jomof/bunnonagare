@@ -1,6 +1,6 @@
 package com.jomofisher
 
-import com.jomofisher.collections.mapAsEmpty
+import com.jomofisher.collections.mapAs
 import com.jomofisher.collections.toOneToOne
 import com.jomofisher.collections.toTypedArray
 import com.jomofisher.function.Function
@@ -19,6 +19,6 @@ class WaniKaniVocab(vocab: Array<Function>) {
 fun readWaniKaniVocab(file: File): WaniKaniVocab {
     return WaniKaniVocab(parseLispy(file)
             .keepName("vocab")
-            .mapAsEmpty<Function>()
+            .mapAs<Function>()
             .toTypedArray())
 }

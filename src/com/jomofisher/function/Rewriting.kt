@@ -1,13 +1,16 @@
 package com.jomofisher.function
 
+import com.jomofisher.collections.SList
 import com.jomofisher.collections.map
-import com.jomofisher.collections.notEmpty
 
+fun SList<Node>?.rewrite(action: (Node) -> Node): SList<Node>? {
+    return map { it.rewrite(action) }
+}
 fun Node.rewrite(action: (Node) -> Node): Node {
     return when (this) {
         is Label -> action(this)
         is MutableAnnotatedFunction -> {
-            var parms = parms.map {
+            val parms = parms.map {
                 it.rewrite(action)
             }
             return action(applyAnnotationsTo(createFunction(name, parms)))
@@ -20,7 +23,7 @@ fun Node.rewrite(action: (Node) -> Node): Node {
                     val (name, parms) = rewritten
                     var result = createFunction(
                             name,
-                            parms.notEmpty().map {
+                            parms.map {
                                 it.rewrite(action)
                             })
                     if (rewritten is MutableAnnotatedFunction) {

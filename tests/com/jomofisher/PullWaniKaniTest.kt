@@ -1,7 +1,6 @@
 package com.jomofisher
 
 import com.google.common.truth.Truth.assertThat
-import com.jomofisher.collections.notEmpty
 import com.jomofisher.collections.slistOf
 import com.jomofisher.collections.toSList
 import com.jomofisher.function.*
@@ -48,8 +47,7 @@ class PullWaniKaniTest {
                 vocab.kana
                         .split(",")
                         .map { createLabel(it) }
-                        .toSList()
-                        .notEmpty())
+                        .toSList())
         val meaning = createLabel("\"${vocab.meaning}\"")
         val character = createLabel(vocab.character)
         val level = createLabel(vocab.level.toString())

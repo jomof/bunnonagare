@@ -2,7 +2,7 @@ package com.jomofisher
 
 import com.google.common.truth.Truth.assertThat
 import com.jomofisher.collections.drop
-import com.jomofisher.collections.head
+import com.jomofisher.collections.get
 import com.jomofisher.collections.size
 import com.jomofisher.function.Function
 import com.jomofisher.function.Label
@@ -51,7 +51,7 @@ internal class FunctionKtTest {
         val result = parseLispyFunction("function(one)")
         assertThat(result.name).isEqualTo("function")
         assertThat(result.parms.size()).isEqualTo(1)
-        assertThat(result.parms.head().toString()).isEqualTo("one")
+        assertThat(result.parms[0].toString()).isEqualTo("one")
     }
 
     @Test
@@ -59,8 +59,8 @@ internal class FunctionKtTest {
         val result = parseLispyFunction("function(one,two)")
         assertThat(result.name).isEqualTo("function")
         assertThat(result.parms.size()).isEqualTo(2)
-        assertThat(result.parms.head().toString()).isEqualTo("one")
-        assertThat(result.parms.drop(1).head().toString()).isEqualTo("two")
+        assertThat(result.parms[0].toString()).isEqualTo("one")
+        assertThat(result.parms.drop(1)[0].toString()).isEqualTo("two")
     }
 
     @Test
@@ -69,8 +69,8 @@ internal class FunctionKtTest {
         assertThat(result.toString()).isEqualTo("function(one,two)")
         assertThat(result.name).isEqualTo("function")
         assertThat(result.parms.size()).isEqualTo(2)
-        assertThat(result.parms.head().toString()).isEqualTo("one")
-        assertThat(result.parms.drop(1).head().toString()).isEqualTo("two")
+        assertThat(result.parms[0].toString()).isEqualTo("one")
+        assertThat(result.parms.drop(1)[0].toString()).isEqualTo("two")
     }
 
     @Test
@@ -78,10 +78,10 @@ internal class FunctionKtTest {
         val result = parseLispyFunction("function(one(two))")
         assertThat(result.name).isEqualTo("function")
         assertThat(result.parms.size()).isEqualTo(1)
-        assertThat(result.parms.head().toString()).isEqualTo("one(two)")
-        val child = result.parms.head() as Function
+        assertThat(result.parms[0].toString()).isEqualTo("one(two)")
+        val child = result.parms[0] as Function
         assertThat(child.parms.size()).isEqualTo(1)
-        assertThat(child.parms.head().toString()).isEqualTo("two")
+        assertThat(child.parms[0].toString()).isEqualTo("two")
     }
 
     @Test
@@ -89,6 +89,6 @@ internal class FunctionKtTest {
         val result = parseLispyFunction("function( \"one , two\")")
         assertThat(result.name).isEqualTo("function")
         assertThat(result.parms.size()).isEqualTo(1)
-        assertThat(result.parms.head().toString()).isEqualTo("\"one , two\"")
+        assertThat(result.parms[0].toString()).isEqualTo("\"one , two\"")
     }
 }

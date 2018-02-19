@@ -2,7 +2,11 @@ package com.jomofisher
 
 import com.google.common.truth.Truth.assertThat
 import com.jomofisher.collections.*
-import com.jomofisher.function.*
+import com.jomofisher.function.Function
+import com.jomofisher.function.Node
+import com.jomofisher.function.component1
+import com.jomofisher.function.component2
+import com.jomofisher.sentences.readClassifierFile
 import com.jomofisher.sentences.readSentences
 import org.junit.Test
 
@@ -64,7 +68,12 @@ class LintTest {
 
     @Test
     fun stuffThatCantEndAThing() {
-        val stuff = arrayOf("ます", "ました", "ません", "さん", "たち", "でした")
+        val ontology = readOntologyFile(ontologyFile)
+        val stuff = listOf(
+                setOf("ます", "ました", "ません", "さん", "たち", "でした"),
+                ontology.leafsUnder("suffix")
+        ).flatten()
+
         lintSentences(readSentencesFromEveryWhere()) { node, _, _ ->
             val (name, _) = node
             stuff.forEach {
@@ -93,7 +102,7 @@ class LintTest {
 
     @Test
     fun iverbStemMustMatchSuffix() {
-        val ontology = createOntologyFromFile(ontologyFile)
+        val ontology = readOntologyFile(ontologyFile)
         val suffix = ontology.leafsUnder("suffix-verb-i-form")
         val stem = ontology.leafsUnder("stem-verb-i-form")
         assertThat(suffix.size).isGreaterThan(0)
@@ -129,6 +138,23 @@ class LintTest {
     }
 
     @Test
+    fun stuffThaMustBeFirstOfTwo() {
+        val stuffThatMustBeLastOfTwo = arrayOf(
+                "もう")
+        lintSentences(readSentencesFromEveryWhere()) { node, index, of ->
+            val (name, _) = node
+            if (stuffThatMustBeLastOfTwo.contains(name)) {
+                if (of != 2) {
+                    throw RuntimeException("$name must be in function of two parameters")
+                }
+                if (index != 0) {
+                    throw RuntimeException("$name must be first")
+                }
+            }
+        }
+    }
+
+    @Test
     fun stuffTheMustBeLastOfTwo() {
         val stuffThatMustBeLastOfTwo = arrayOf(
                 "で", "ね", "は", "が", "に", "を", "くなかった", "くない", "か", "ました",
@@ -143,6 +169,17 @@ class LintTest {
                     throw RuntimeException("$name must be last")
                 }
             }
+        }
+    }
+
+    @Test
+    fun allClassifiersMustBeOntologyLeafs() {
+        val ontology = readOntologyFile(ontologyFile)
+        val classifiers = readClassifierFile(classifiersFile)
+        classifiers.forEach {
+            assertThat(ontology.isLeaf(it.production))
+                    .named("classifier product ${it.production} is not an ontology leaf")
+                    .isTrue()
         }
     }
 }

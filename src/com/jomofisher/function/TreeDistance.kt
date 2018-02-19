@@ -11,11 +11,12 @@ class Differ(private val cached: MutableTriangle<Int>) {
     private val renameCost = 1
 
     private fun deleteLeft(t: OrdinalFunction): Pair<OrdinalNode, OrdinalNode> {
-        val left = t.parms.head()
+        val left = t.parms[0]
         val remainder = t.parms.drop(1) ?: return Pair(left, Empty())
         return when (left) {
             is OrdinalLabel -> Pair(left, createNode(t.ordinal, remainder))
-            is OrdinalFunction -> Pair(left, createNode(t.ordinal, left.parms concat remainder))
+            is OrdinalFunction -> Pair(left,
+                    createNode(t.ordinal, left.parms concat remainder))
             else -> throw RuntimeException("unexpected")
         }
     }

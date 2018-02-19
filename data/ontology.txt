@@ -1,33 +1,26 @@
 phrase
  wa
   sore
+  other
  ni
  wo
  ga
+ ka
 particle(は, の)
 verb
  past
   positive
+   mashta
   negative
  non-past
   positive
   negative
 noun
+ counted
+ already
 adjective
  i
-  past
-   positive
-   negative
-  non-past
-   positive
-   negative
  na
-  past
-   positive
-   negative
-  non-past
-   positive
-   negative
  no
 adverb
 stem
@@ -36,5 +29,6 @@ stem
 suffix
  verb
   i-form(ます, ました, ません)
+ counters(杯)
 
 

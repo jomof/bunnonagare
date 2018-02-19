@@ -18,6 +18,6 @@ line(さき, "Can I have a little more time?", (((もう, (少し, 時間)), を
 action(Waitress, "Leaves and comes back after a little time")
 line(さき, "Ramen please.", らめん, ((お, 願い), (し, ます)))
 line(Spiteful, "Five plates of curry please.", ((カレー, を), (いつつ)), ((お, 願い), (し, ます))
-line(Waitress, "Would you like another beer?", (((ビール, を), (もう, 一杯)), (いかが, です)), か)
+line(Waitress, "Would you like another beer?", (((ビール, を), (もう, (一, 杯))), (いかが, です)), か)
 line(Waitress, "No thank you, that was enough.", いいえ, ((もう, 結構), です))
 line(さき, "Thank you for the meal.", ごちそうさま, でした)

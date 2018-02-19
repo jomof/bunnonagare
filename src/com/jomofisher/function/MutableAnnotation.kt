@@ -4,17 +4,12 @@ import com.jomofisher.collections.SList
 import com.jomofisher.collections.map
 import com.jomofisher.collections.slistOf
 import com.jomofisher.collections.toSList
-import kotlin.collections.MutableMap
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.collections.forEach
-import kotlin.collections.map
-import kotlin.collections.mutableMapOf
 import kotlin.collections.set
-import kotlin.collections.sortedBy
 
 class MutableAnnotatedFunction(override val name: String,
-                               override val parms: SList<Node>) : Function() {
+                               override val parms: SList<Node>?) : Function() {
     private val annotations: MutableMap<String, String> = mutableMapOf()
 
     fun annotate(key: String, value: String): MutableAnnotatedFunction {
@@ -109,7 +104,7 @@ fun Node.annotate(key: String, value: String): Node {
     }
 }
 
-fun SList<Function>.annotate(key: String, value: String): SList<Function> {
+fun SList<Function>?.annotate(key: String, value: String): SList<Function>? {
     return map { it.annotate(key, value) }
 }
 
@@ -144,6 +139,6 @@ fun Function.exposeAnnotation(): Function {
     return original
 }
 
-fun SList<Function>.exposeAnnotations(): SList<Function> {
+fun SList<Function>?.exposeAnnotations(): SList<Function>? {
     return this.map { it.exposeAnnotation() }
 }

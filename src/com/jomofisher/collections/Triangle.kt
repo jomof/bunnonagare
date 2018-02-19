@@ -36,10 +36,6 @@ class SequenceTriangle<out T>(
     }
 }
 
-fun <T> emptyTriangle(): Triangle<T> {
-    return SequenceTriangle<T>(0, { _, _ -> throw RuntimeException() })
-}
-
 fun <T1, T2> Triangle<T1>.map(action: (T1) -> T2): Triangle<T2> {
     return SequenceTriangle(size()) { i, j ->
         action(this[i, j])
@@ -56,18 +52,18 @@ fun <T> Triangle<T>.forEachIndexed(action: (Int, Int, T) -> Unit) {
 fun <T1, T2> Triangle<T1>.flattenIndexed(action: (Int, Int, T1) -> T2): SList<T2>? {
     var result = slistOf<T2>()
     forEachIndexed { i, j, t ->
-        result = result.push(action(i, j, t))
+        result += action(i, j, t)
     }
-    return result.reversedEmpty()
+    return result.reversed()
 }
 
 fun <T> Triangle<T>.forEachRow(action: (Int, SList<T>?) -> Unit) {
     for (j in (0 until size())) {
         var row = slistOf<T>()
         for (i in (0 until j + 1)) {
-            row = row.push(get(i, j))
+            row += get(i, j)
         }
-        action(j, row.reversedEmpty())
+        action(j, row.reversed())
     }
 }
 
@@ -93,7 +89,7 @@ fun <T> Triangle<T>.getBiDirectional(i: Int, j: Int): T {
 fun readFunctionTriples(
         file: File,
         name: String): Triangle<Node> {
-    val functions = parseLispy(file).mapAsEmpty<Function>()
+    val functions = parseLispy(file).mapAs<Function>()
     val sparse = mutableTriangleOf<Node>()
     var size = -1
     functions
@@ -160,7 +156,7 @@ fun Triangle<Int>.fairDjikstra(entryPoint: Int = 0): Triangle<Int> {
                     lowestCostSoFar = distance
                 } else if (distance == lowestCostSoFar) {
                     // Record all edges that match the lowest cost
-                    bestCandidates = bestCandidates.push(Pair(v, other))
+                    bestCandidates += Pair(v, other)
                 }
             }
         }
