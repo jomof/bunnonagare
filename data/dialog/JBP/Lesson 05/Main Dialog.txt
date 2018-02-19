@@ -1,4 +1,4 @@
-title("Smith buys a camera")
+setting("Smith buys a camera")
 line(スミス, "Excuse me.",　(すみ, ません))
 line(スミス, "How much is that camera?",　((((そ, の), カメラ), は), いくら), です), か)
 line(カメラや, "Which one, sir?", (どれ, です), か)

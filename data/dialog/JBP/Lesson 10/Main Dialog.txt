@@ -1,4 +1,4 @@
-title("Tanaka and Smith talk about their plans for the weekend")
+setting("Tanaka and Smith talk about their plans for the weekend")
 line(田中, "What will you do over the weekend?", (((週末, に), (何, を)), (し, ます)), か)
 line(スミス, "I will see Kabuki with my friends on Sunday.", ((日曜日, に), (((友達, と), 歌舞伎), を)), (見, ます))
 line(田中, "Sounds good.", (いい, です), ね)

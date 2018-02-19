@@ -2,10 +2,8 @@ package com.jomofisher
 
 import com.google.common.truth.Truth.assertThat
 import com.jomofisher.collections.*
-import com.jomofisher.function.Function
-import com.jomofisher.function.Node
-import com.jomofisher.function.component1
-import com.jomofisher.function.component2
+import com.jomofisher.function.*
+import com.jomofisher.sentences.readSentences
 import org.junit.Test
 
 class LintTest {
@@ -15,7 +13,7 @@ class LintTest {
             check: (Node, Int, Int) -> Unit) {
         sentences.forEach {
             try {
-                lintFragment(Function("", it.parms.drop(1).notEmpty()), check)
+                lintFragment(it, check)
             } catch (e: RuntimeException) {
                 if (e is KotlinNullPointerException) {
                     throw e
@@ -39,8 +37,8 @@ class LintTest {
     }
 
     private fun readSentencesFromEveryWhere(): SList<Function>? {
-        val grammarSentences = readSentences(sentencesFile)
-        val dialogSentences = createDialogFromFolder(dialogFolder)
+        val grammarSentences = readSentences(rootFolder, sentencesFile)
+        val dialogSentences = createDialogFromFolder(rootFolder, dialogFolder)
                 .allSentences()
         return grammarSentences concat dialogSentences
     }

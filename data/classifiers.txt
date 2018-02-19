@@ -1,3 +1,4 @@
+match(desu, (です))
 match(sore-wa-phrase, (それ, は))
 match(wa-phrase, (*, は))
 match(ka-phrase, (*, か))

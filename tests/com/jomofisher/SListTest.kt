@@ -53,4 +53,10 @@ internal class SListTest {
         val list = listOf("a", "b").toSList()
         assertThat(list.toString()).isEqualTo("[a, b]")
     }
+
+    @Test
+    fun mapAs() {
+        val list = slistOf("a", "b").mapAs<String>()
+        assertThat(list.toString()).isEqualTo("[a, b]")
+    }
 }

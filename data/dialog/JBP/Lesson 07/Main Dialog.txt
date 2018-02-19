@@ -1,4 +1,4 @@
-title("")
+setting("Mr. Smith visits Mr. Tanaka")
 line(たなか, "Mr. Smith, how nice of you to come",　((スミス, さん), よく), (いらっしゃい, ました))
 line(スミス, "Hello", こんにちは)
 line(たなか, "Do come in", (どうぞ), ((お, はいり), ください))

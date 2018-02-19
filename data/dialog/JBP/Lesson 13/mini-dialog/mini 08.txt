@@ -1,0 +1,18 @@
+line(A, "Is your (Smith's) house far from the office?", (((((((スミス, さん), の), 家), は), ((会社, から), 遠い)), です), か)
+line(B, "No, it isn't far.", いいえ, ((遠く, ない), です))
+line(B, "It's near.", 近い, です)
+line(B, "It's about 20 minutes by subway.", ((地下鉄, で), ((20, 分), ぐらい)), です)
+line(A, "I see.", (そう, です), ね)
+line(A, "How convenient.", (べんり, です), ね)
+
+
+
+
+
+
+
+
+
+
+
+

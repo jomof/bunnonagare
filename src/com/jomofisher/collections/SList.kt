@@ -54,7 +54,7 @@ fun <T> SList<T>.reversed(): SList<T> {
     return reversedEmpty()!!
 }
 
-fun <T> SList<T>?.push(value: T): SList<T>? {
+fun <T> SList<T>?.push(value: T): SList<T> {
     return SList(value, this)
 }
 
@@ -192,9 +192,9 @@ fun <T> Iterable<T>.toSList(): SList<T>? {
 }
 
 inline fun <reified T> SList<*>?.mapAsReversedEmpty(): SList<T>? {
-    return mapEmpty {
+    return mapEmptyReversed {
         if (it !is T) {
-            throw RuntimeException("$it was not the expected type")
+            throw RuntimeException("$it was not the expected type ")
         }
         it as T
     }
@@ -261,4 +261,31 @@ operator fun <T> SList<T>?.component2(): T {
 
 operator fun <T> SList<T>?.component3(): T {
     return get(2)
+}
+
+fun <T> SList<T>.takeOnly(): T {
+    if (next != null) {
+        throw RuntimeException("expected exactly one element")
+    }
+    return value
+}
+
+fun <T> SList<T>?.take(n: Int): SList<T>? {
+    var result = slistOf<T>()
+    var current = this
+    var n = n
+    while (n != 0 && current != null) {
+        result = result.push(current.value)
+        ++current
+        --n
+    }
+    return result.reversedEmpty()
+}
+
+fun <T, R> SList<T>?.fold(initial: R, operation: (acc: R, T) -> R): R {
+    var acc = initial
+    forEach {
+        acc = operation(acc, it)
+    }
+    return acc
 }

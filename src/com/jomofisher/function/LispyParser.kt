@@ -42,10 +42,10 @@ private class LispyParser(
                         if (parenDepth < 0) {
                             throw RuntimeException("Unmatched right paren: $line")
                         }
-                        return Label(name.trim())
+                        return createLabel(name.trim())
                     }
                     ',' -> {
-                        return Label(name.trim())
+                        return createLabel(name.trim())
                     }
                     else -> {
                         name += c
@@ -54,7 +54,7 @@ private class LispyParser(
                 }
             }
         }
-        return Label(name)
+        return createLabel(name)
     }
 
     private fun parseList(): SList<Node>? {
@@ -78,6 +78,7 @@ private class LispyParser(
 fun parseLispy(file: File): SList<Node>? {
     return file
             .readLines()
+            .filter { !it.isEmpty() }
             .map { LispyParser(it).parseNode() }
             .toSList()
 }

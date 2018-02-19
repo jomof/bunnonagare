@@ -1,4 +1,4 @@
-title("Hayashi takes a trip")
+setting("Hayashi takes a trip")
 line(たなか, "Ah, Mr. Hayashi, are you going on a business trip?", ((あ、(はやし, さん)), (しゅっちょう, です)), か)
 line(はやし, "Yes.", ええ)
 line(たなか, "Where are you going?", ((どこ, に)　(いき, ます)), か)

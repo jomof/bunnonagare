@@ -53,9 +53,9 @@ fun FragmentIndexBuilder.getOrderedFragments(): Array<Node> {
 
 fun FragmentIndexBuilder.toIndexFunctions(): SList<Node>? {
     return getOrderedFragments().mapIndexed { index, node ->
-        Function("indexedFragment",
+        createNode("indexedFragment",
                 slistOf(
-                        Label(index.toString()),
+                        createLabel(index.toString()),
                         node))
     }.toSList()
 }

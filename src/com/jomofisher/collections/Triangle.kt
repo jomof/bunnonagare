@@ -36,6 +36,10 @@ class SequenceTriangle<out T>(
     }
 }
 
+fun <T> emptyTriangle(): Triangle<T> {
+    return SequenceTriangle<T>(0, { _, _ -> throw RuntimeException() })
+}
+
 fun <T1, T2> Triangle<T1>.map(action: (T1) -> T2): Triangle<T2> {
     return SequenceTriangle(size()) { i, j ->
         action(this[i, j])

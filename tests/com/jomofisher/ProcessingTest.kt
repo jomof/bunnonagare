@@ -1,24 +1,37 @@
 package com.jomofisher
 
-import com.jomofisher.collections.*
+import com.jomofisher.collections.concat
+import com.jomofisher.collections.fairDjikstra
+import com.jomofisher.collections.notEmpty
+import com.jomofisher.collections.toStringMapped
 import com.jomofisher.function.*
-import com.jomofisher.function.Function
+import com.jomofisher.sentences.classify
+import com.jomofisher.sentences.readClassifierFile
+import com.jomofisher.sentences.readSentences
 import org.junit.Test
 
 class ProcessingTest {
 
     @Test
     fun recreate() {
-        val grammarSentences = readSentences(sentencesFile)
-        val dialogSentences = createDialogFromFolder(dialogFolder)
+        val grammarSentences = readSentences(rootFolder, sentencesFile)
+        val dialogSentences = createDialogFromFolder(rootFolder, dialogFolder)
                 .allSentences()
-        val sentences = grammarSentences concat dialogSentences
-        val japaneseOnly = classify(getJapaneseOnly(sentences))
+        val sentences = (grammarSentences concat dialogSentences)
+                //.take(1)
+                .notEmpty()
+        val classifiers = readClassifierFile(classifiersFile)
+        val classified =
+                classifiers.classify(sentences)
+                        .exposeAnnotations()
 
-        val sentenceIndex = readSentenceIndex(indexedFragmentsFile)
-                .appendTopLevel(japaneseOnly)
+        indexedFragmentsFile.writeText("")
+        sentenceDistancesFile.writeText("")
+        val sentenceIndex =
+                readSentenceIndex(indexedFragmentsFile)
+                        .appendTopLevel(classified)
         val deepSentenceIndex = sentenceIndex.copy()
-        val ordinalSentences = japaneseOnly.toOrdinal(deepSentenceIndex)
+        val ordinalSentences = classified.toOrdinal(deepSentenceIndex)
         val distanceTriangle = readDistances(sentenceDistancesFile)
                 .fillInNewDistances(ordinalSentences)
 
@@ -35,66 +48,4 @@ class ProcessingTest {
             }
         })
     }
-
-    private fun classify(classifier: Node, sentenceFragment: Node): Node {
-        val (_, classifierParms) = classifier
-        val (productionNode, classifierNode) = classifierParms
-        val (production, _) = productionNode
-        val (name, sentenceParms) = sentenceFragment
-        val classifiedFunctionParms =
-                sentenceParms.mapEmpty { classify(classifier, it) }
-        if (unifies(classifierNode, sentenceFragment)) {
-            return createNode(production, classifiedFunctionParms)
-        }
-        return createNode(name, classifiedFunctionParms)
-    }
-
-    private fun unifies(classifierNode: Node, sentenceFragment: Node): Boolean {
-        val (classifierName, classifierParms) = classifierNode
-        if (classifierName == "*") {
-            return true
-        }
-        val (sentenceFragmentName, sentenceFragmentParms) = sentenceFragment
-        if (classifierName != sentenceFragmentName) {
-            return false
-        }
-        if (classifierParms.size() != sentenceFragmentParms.size()) {
-            return false
-        }
-        return unifies(classifierParms, sentenceFragmentParms)
-    }
-
-    private fun unifies(
-            classifierParms: SList<Node>?,
-            sentenceFragmentParms: SList<Node>?): Boolean {
-        if (classifierParms == null && sentenceFragmentParms == null) {
-            return true
-        }
-        if (classifierParms == null || sentenceFragmentParms == null) {
-            return false
-        }
-        if (!unifies(classifierParms.head(), sentenceFragmentParms.head())) {
-            return false
-        }
-        return unifies(classifierParms.drop(1), sentenceFragmentParms.drop(1))
-    }
-
-    private fun classify(classifiers: SList<Node>?, function: Node): Node {
-        var result = function
-        classifiers
-                .keepName("match")
-                .forEach {
-                    result = classify(it, result)
-        }
-        return result
-    }
-
-    private fun classify(sentences: SList<Function>): SList<Function> {
-        val classifiers = parseLispy(classifiersFile)
-        return sentences
-                .map { classify(classifiers, it) }
-                .mapAs()
-    }
-
-
 }

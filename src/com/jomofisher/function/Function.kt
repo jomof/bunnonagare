@@ -5,7 +5,9 @@ import java.io.File
 
 open class Node
 
-class Label(val label: String) : Node() {
+abstract class Label : Node() {
+    abstract val label: String
+
     override fun toString(): String {
         return label
     }
@@ -22,7 +24,12 @@ class Label(val label: String) : Node() {
     }
 }
 
-class Function(val name: String, val parms: SList<Node>) : Node() {
+class ImmutableLabel(override val label: String) : Label()
+
+abstract class Function : Node() {
+    abstract val name: String
+    abstract val parms: SList<Node>
+
 
     override fun toString(): String {
         val builder = StringBuilder()
@@ -42,6 +49,10 @@ class Function(val name: String, val parms: SList<Node>) : Node() {
     }
 
 }
+
+private class ImmutableFunction(
+        override val name: String,
+        override val parms: SList<Node>) : Function()
 
 open class OrdinalNode(val ordinal: Int) : Node()
 class OrdinalLabel(ordinal: Int) : OrdinalNode(ordinal) {
@@ -83,11 +94,33 @@ class OrdinalFunction(ordinal: Int, val parms: SList<OrdinalNode>) : OrdinalNode
     }
 }
 
-fun createNode(name: String, children: SList<Node>? = null): Node {
+fun createFunction(name: String, first: String, vararg values: String): Function {
+    val parms = slistOf(createLabel(first))
+            .concat(values.map { createLabel(it) }.toSList())
+    return ImmutableFunction(name, parms.mapAs())
+}
+
+fun <T : Node> createFunction(name: String, parms: SList<T>): Function {
+    return ImmutableFunction(name, parms.mapAs())
+}
+
+fun <T : Node> createFunction(parms: SList<T>): Function {
+    return ImmutableFunction("", parms.mapAs())
+}
+
+fun createLabel(name: String): Label {
+    return ImmutableLabel(name)
+}
+
+fun createFunction(name: String, node: Node): Function {
+    return ImmutableFunction(name, slistOf(node))
+}
+
+fun <T : Node> createNode(name: String, children: SList<T>? = null): Node {
     if (children == null) {
-        return Label(name)
+        return ImmutableLabel(name)
     }
-    return Function(name, children)
+    return ImmutableFunction(name, children.mapAs())
 }
 
 fun createNode(ordinal: Int, children: SList<OrdinalNode>?): OrdinalNode {
@@ -113,9 +146,14 @@ operator fun Node.component2(): SList<Node>? {
     }
 }
 
+operator fun Function.component2(): SList<Node> {
+    return parms
+}
+
 fun Node.invert(parent: SList<Node>? = null): SList<Node>? {
     val (name, parms) = this
-    return parms.invert(slistOf(Label(name))).push(createNode(name, parent))
+    val node = createNode(name, parent)
+    return parms.invert(slistOf(createLabel(name))).push(node)
 }
 
 fun SList<Node>?.invert(parent: SList<Node>? = null): SList<Node>? {
@@ -163,6 +201,14 @@ fun <T : Node> SList<T>?.toNameText(): SList<String>? {
     }
 }
 
+fun <T : Node> SList<T>?.getScalar(name: String): String? {
+    val named = keepName(name)
+    if (named == null) {
+        return null
+    }
+    return named.notEmpty().mapAs<Function>().takeOnly().parms[0].component1()
+}
+
 fun Array<Function>.indexByParameter(parameter: Int): Map<String, Set<Int>> {
     val result: MutableMap<String, MutableSet<Int>> = mutableMapOf()
     mapIndexed { i, f ->
@@ -181,12 +227,3 @@ fun Array<Function>.indexByParameter(parameter: Int): Map<String, Set<Int>> {
     return result
 }
 
-//fun <T : Node> SList<T>?
-//
-//fun Node.rewriteBottomUp(action : (Node) -> Node) : Node {
-//    when(this) {
-//        is Function -> {
-//            val parms = this.parms.rewriteBottomUp()
-//        }
-//    }
-//}

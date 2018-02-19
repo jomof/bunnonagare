@@ -1,3 +1,2 @@
-title("What kind of hotel is Tokyo Hotel")
 line(A, "What kind of hotel is Tokyo Hotel?", (((((東京,ホテル),は), (どんな, ホテル)), です), か)
 line(B, "It is a very nice hotel.", ((とても, いい), ホテル), です)

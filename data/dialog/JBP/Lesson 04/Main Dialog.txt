@@ -1,4 +1,4 @@
-title("Smith buys a thing")
+setting("Smith buys a thing")
 line(デパートのてんいん,　"May I help you, sir?", いらっしゃいませ)
 line(スミス,　"Would you show me that, please?", (それ, を), (みせて, ください))
 line(デパートのてんいん,　"Certainly, sir. Here you are.", はい、, どうぞ)

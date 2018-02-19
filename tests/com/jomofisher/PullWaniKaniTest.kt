@@ -1,11 +1,10 @@
 package com.jomofisher
 
 import com.google.common.truth.Truth.assertThat
+import com.jomofisher.collections.notEmpty
 import com.jomofisher.collections.slistOf
 import com.jomofisher.collections.toSList
-import com.jomofisher.function.Node
-import com.jomofisher.function.createNode
-import com.jomofisher.function.writeToFile
+import com.jomofisher.function.*
 import com.wanikani.api.WaniKaniClient
 import com.wanikani.api.model.Vocabulary
 import org.junit.Test
@@ -40,19 +39,20 @@ class PullWaniKaniTest {
         println("${client.levelProgression}")
     }
 
-    fun createNode(vocab: Vocabulary): Node {
+    fun createVocabNode(vocab: Vocabulary): Node {
         assertThat(vocab.character).doesNotContain(",")
         assertThat(vocab.kana).doesNotContain("\"")
         assertThat(vocab.character).doesNotContain("\"")
         assertThat(vocab.meaning).doesNotContain("\"")
-        val kana = createNode("",
+        val kana = createFunction(
                 vocab.kana
                         .split(",")
-                        .map { createNode(it) }
-                        .toSList())
-        val meaning = createNode("\"${vocab.meaning}\"")
-        val character = createNode(vocab.character)
-        val level = createNode(vocab.level.toString())
+                        .map { createLabel(it) }
+                        .toSList()
+                        .notEmpty())
+        val meaning = createLabel("\"${vocab.meaning}\"")
+        val character = createLabel(vocab.character)
+        val level = createLabel(vocab.level.toString())
 
         return createNode("vocab", slistOf(kana, character, meaning, level))
     }
@@ -65,7 +65,7 @@ class PullWaniKaniTest {
         val client = WaniKaniClient(getWaniKaniApiKey())
         val vocab =
                 client.getVocabulary()
-                        .map { createNode(it) }
+                        .map { createVocabNode(it) }
                         .toSList()
         vocab.writeToFile(wanikaniVocab)
     }

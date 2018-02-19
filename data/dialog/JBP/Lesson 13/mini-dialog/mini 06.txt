@@ -1,5 +1,3 @@
-
-
-
-line(A, "Is that a beautiful restaurant?", ((あれ,は), ((綺麗, な), レストラン)), です), か)
-line(B, "He is an interesting person.", いいえ, (あまり, ((綺麗, な), レストラン),(では, (あり, ません)))
+line(A, "Is the park far from here?", (((こうえん, は), ((ここ, から) 遠い)), です), か)
+line(B, "No, it is not far.", いいえ, (((遠く), ない), です))
+line(B, "It is near.", いいえ, (近い, です))

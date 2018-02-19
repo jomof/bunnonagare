@@ -1,0 +1,3 @@
+line(A, "Are you free tomorrow afternoon?", (((あなた, は), (((明日, の) 午後), 暇))です), か)
+line(B, "No, I am not free.", いいえ, ((暇, では)　(あり, ません)))
+line(B, "I'm busy.", いそがしい, です)

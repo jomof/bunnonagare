@@ -2,7 +2,6 @@ package com.jomofisher
 
 import com.jomofisher.collections.*
 import com.jomofisher.function.*
-import com.jomofisher.function.Function
 import java.io.File
 
 fun readDistances(file: File): Triangle<Int> {
@@ -15,13 +14,12 @@ fun readDistances(file: File): Triangle<Int> {
 
 fun Triangle<Int>.writeDistances(file: File) {
     flattenIndexed { i, j, distance ->
-        Function("distance",
+        createNode("distance",
                 slistOf(
-                        Label(i.toString()),
-                        Label(j.toString()),
-                        Label(distance.toString())))
-    }
-            .writeToFile(file)
+                        createLabel(i.toString()),
+                        createLabel(j.toString()),
+                        createLabel(distance.toString())))
+    }.writeToFile(file)
 }
 
 fun Triangle<Int>.fillInNewDistances(
