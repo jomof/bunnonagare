@@ -1,14 +1,12 @@
 package com.jomofisher
 
-import com.jomofisher.collections.concat
-import com.jomofisher.collections.fairDjikstra
-import com.jomofisher.collections.mapAs
-import com.jomofisher.collections.toStringMapped
+import com.jomofisher.collections.*
 import com.jomofisher.function.*
 import com.jomofisher.function.Function
-import com.jomofisher.sentences.classify
+import com.jomofisher.sentences.annotate
 import com.jomofisher.sentences.readClassifierFile
 import com.jomofisher.sentences.readSentences
+import com.jomofisher.sentences.toSentenceText
 import org.junit.Test
 
 class ProcessingTest {
@@ -19,26 +17,20 @@ class ProcessingTest {
         val dialogSentences = createDialogFromFolder(rootFolder, dialogFolder)
                 .allSentences()
         val wanikani = readWaniKaniVocab(wanikaniVocab)
-        val sentences = (grammarSentences concat dialogSentences)
-                .mapAs<Node>()
-                .rewrite {
-                    it
-                }
-                .mapAs<Function>()
-
         val classifiers = readClassifierFile(classifiersFile)
-        val classified =
-                classifiers.classify(sentences.mapAs())
-                        .exposeAnnotations()
+        val sentences = (grammarSentences concat dialogSentences)
+                .map(wanikani::annotate)
+                .map(classifiers::annotate)
 
+        val annotated = sentences.map(Function::exposeAnnotation)
 
         indexedFragmentsFile.writeText("")
         sentenceDistancesFile.writeText("")
         val sentenceIndex =
                 readSentenceIndex(indexedFragmentsFile)
-                        .appendTopLevel(classified)
+                        .appendTopLevel(annotated)
         val deepSentenceIndex = sentenceIndex.copy()
-        val ordinalSentences = classified.toOrdinal(deepSentenceIndex)
+        val ordinalSentences = annotated.toOrdinal(deepSentenceIndex)
         val distanceTriangle = readDistances(sentenceDistancesFile)
                 .fillInNewDistances(ordinalSentences)
 
@@ -46,6 +38,12 @@ class ProcessingTest {
         distanceTriangle.writeDistances(sentenceDistancesFile)
 
         val edges = distanceTriangle.fairDjikstra()
+        val connects = edges.toSquare().toConnectionTree()
+        val sentenceArray = sentences.toTypedArray()
+        connects.visitIndented(0) { depth, name ->
+            val sentence = sentenceArray[name.toInt()].toSentenceText()
+            println(sentence)
+        }
         println(edges.toStringMapped {
             when (it) {
                 0 -> " "

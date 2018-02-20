@@ -6,6 +6,7 @@
       <w>djikstra</w>
       <w>iverb</w>
       <w>jomof</w>
+      <w>kana</w>
       <w>kani</w>
       <w>kanji</w>
       <w>lispy</w>
@@ -22,6 +23,7 @@
       <w>unifications</w>
       <w>upsert</w>
       <w>wani</w>
+      <w>wanikani</w>
     </words>
   </dictionary>
 </component>

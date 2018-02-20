@@ -207,3 +207,20 @@ fun SList<Function>?.toOrdinal(index: FragmentIndexBuilder)
         : Array<OrdinalFunction> {
     return index.rewriteToOrdinals(this).toTypedArray()
 }
+
+fun StringBuilder.appendFlattened(node: Node): StringBuilder {
+    when (node) {
+        is Label -> append(node.label)
+        is Function -> {
+            append(node.name)
+            node.parms.forEach { appendFlattened(it) }
+        }
+    }
+    return this
+}
+
+fun Node.visitIndented(depth: Int = 0, action: (depth: Int, String) -> Unit) {
+    val (name, parms) = this
+    action(depth, name)
+    parms.forEach { it.visitIndented(depth + 1, action) }
+}

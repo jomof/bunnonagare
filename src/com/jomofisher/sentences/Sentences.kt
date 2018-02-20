@@ -14,10 +14,18 @@ fun readSentences(root: File, file: File): SList<Function>? {
             .annotate("source-file", annotation)
 }
 
-fun toAnnotatedSentence(sentence: Function): Function {
+private fun toAnnotatedSentence(sentence: Function): Function {
     val parms = sentence.parms
     val (english, _) = parms[0]
     val japanese = parms.drop(1)
     val japaneseNode = createFunction(japanese)
     return japaneseNode.annotate("english", english)
+}
+
+fun Node.toSentenceText(): String {
+    return StringBuilder()
+            .appendFlattened(this)
+            .toString()
+
+
 }

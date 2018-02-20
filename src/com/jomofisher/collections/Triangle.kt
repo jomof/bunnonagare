@@ -36,6 +36,7 @@ class SequenceTriangle<out T>(
     }
 }
 
+
 fun <T1, T2> Triangle<T1>.map(action: (T1) -> T2): Triangle<T2> {
     return SequenceTriangle(size()) { i, j ->
         action(this[i, j])
@@ -49,6 +50,7 @@ fun <T> Triangle<T>.forEachIndexed(action: (Int, Int, T) -> Unit) {
         }
     }
 }
+
 fun <T1, T2> Triangle<T1>.flattenIndexed(action: (Int, Int, T1) -> T2): SList<T2>? {
     var result = slistOf<T2>()
     forEachIndexed { i, j, t ->
@@ -126,6 +128,12 @@ fun <T> Triangle<T>.toStringMapped(action: (T) -> String): String {
         sb.appendln()
     }
     return sb.toString()
+}
+
+fun Triangle<Int>.toSquare(): Square<Int> {
+    return SequenceSquare(size()) { i, j ->
+        getBiDirectional(i, j)
+    }
 }
 
 /**

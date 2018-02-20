@@ -88,18 +88,6 @@ fun <T1, T2> SList<T1>?.map(action: (T1) -> T2): SList<T2>? {
     return mapReversed(action).reversed()
 }
 
-fun <T1, T2> SList<T1>?.mapIndexedReversed(action: (Int, T1) -> T2): SList<T2>? {
-    var result = slistOf<T2>()
-    var current = this
-    var n = 0
-    while (current != null) {
-        result += action(n, current.value)
-        ++current
-        ++n
-    }
-    return result
-}
-
 fun <T> SList<SList<T>?>?.flatten(): SList<T>? {
     var result = slistOf<T>()
     forEach { outer ->
@@ -135,11 +123,7 @@ fun <T> SList<T>?.size(): Int {
 }
 
 fun <T> Iterable<T>.toSListReversed(): SList<T>? {
-    var result = slistOf<T>()
-    forEach {
-        result += it
-    }
-    return result
+    return fold(slistOf()) { prior, value -> prior + value }
 }
 
 fun <T> Iterable<T>.toSList(): SList<T>? {
@@ -160,13 +144,10 @@ inline fun <reified T> SList<*>?.mapAs(): SList<T>? {
 }
 
 fun <T> SList<T>?.filterReversed(predicate: (T) -> Boolean): SList<T>? {
-    var result = slistOf<T>()
-    forEach {
-        if (predicate(it)) {
-            result += it
-        }
+    return fold(slistOf()) { prior, value ->
+        if (predicate(value)) prior + value
+        else prior
     }
-    return result
 }
 
 fun <T> SList<T>?.filter(predicate: (T) -> Boolean): SList<T>? {

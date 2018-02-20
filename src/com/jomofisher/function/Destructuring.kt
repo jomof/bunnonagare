@@ -85,10 +85,35 @@ fun <T1 : Any, T2 : Any> Node.destructure(
     throw RuntimeException("not match")
 }
 
+data class Quad<out A, out B, out C, out D>(
+        val first: A,
+        val second: B,
+        val third: C,
+        val fourth: D) {
+    override fun toString(): String = "($first, $second, $third, $fourth)"
+}
+
+fun <T1 : Any, T2 : Any, T3 : Any, T4 : Any> Node.destructure(
+        pattern: String,
+        clazz1: KClass<T1>,
+        clazz2: KClass<T2>,
+        clazz3: KClass<T3>,
+        clazz4: KClass<T4>): Quad<T1, T2, T3, T4> {
+    val extracted = mutableMapOf<String, Node>()
+    if (unifies(parseLispy(pattern), this, extracted)) {
+        return Quad(coerceNode(extracted["1"]!!, clazz1),
+                coerceNode(extracted["2"]!!, clazz2),
+                coerceNode(extracted["3"]!!, clazz3),
+                coerceNode(extracted["4"]!!, clazz4))
+    }
+    throw RuntimeException("not match")
+}
+
 @Suppress("UNCHECKED_CAST")
 private fun <T : Any> coerceNode(node: Node, clazz: KClass<T>): T {
     return when (clazz) {
         String::class -> node.toString() as T
+        Int::class -> node.toString().toInt() as T
         else -> node as T
     }
 }

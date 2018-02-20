@@ -1,11 +1,7 @@
 package com.jomofisher.function
 
-import com.jomofisher.collections.SList
 import com.jomofisher.collections.map
 
-fun SList<Node>?.rewrite(action: (Node) -> Node): SList<Node>? {
-    return map { it.rewrite(action) }
-}
 fun Node.rewrite(action: (Node) -> Node): Node {
     return when (this) {
         is Label -> action(this)

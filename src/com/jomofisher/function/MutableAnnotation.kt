@@ -138,7 +138,3 @@ fun Function.exposeAnnotation(): Function {
     }
     return original
 }
-
-fun SList<Function>?.exposeAnnotations(): SList<Function>? {
-    return this.map { it.exposeAnnotation() }
-}
